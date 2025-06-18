@@ -8,9 +8,10 @@ class NoteBase(BaseModel):
     """
     Base model for a note, containing common fields.
     """
-    title: str = Field(..., min_length=1, max_length=100) # Title of the note
-    content: str = Field(..., min_length=1) # Content of the note
-    tags: Optional[List[str]] = Field(default=None, description="List of tags associated with the note") # tags for the note
+    title: str = Field(..., min_length=1, max_length=100, example="Meeting notes") # Title of the note
+    content: str = Field(..., min_length=1, example="Discuss project updates") # Content of the note
+    tags: Optional[List[str]] = Field(default=None, description="List of tags associated with the note", example=["work", "personal"]) # tags for the note
+
 
 class NoteCreate(NoteBase):
     """
@@ -19,6 +20,7 @@ class NoteCreate(NoteBase):
     """
     pass
 
+
 class Note(NoteBase):
     """
     Model for a note that includes an ID.
@@ -26,3 +28,19 @@ class Note(NoteBase):
     """
     id: UUID = Field(default_factory=uuid4) # Unique identifier for the note, generated randomly using uuid4 for each new instance
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)) # Timestamp when the note was created in UTC for consistency in distributed systems
+
+    class Config:
+        """
+        Example configuration for the Note model.
+        This includes ORM mode for compatibility with ORMs like SQLAlchemy and an example schema.
+        """
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "id": "123e4567-e89b-12d3-a456-426614174000",
+                "title": "Meeting Notes",
+                "content": "Discussed project roadmap and deadlines.",
+                "tags": ["work", "urgent"],
+                "created_at": "2024-06-18T12:34:56.789Z"
+            }
+        }
