@@ -45,7 +45,7 @@ def update_note(note_id: UUID, updated_note: NoteUpdate):
         if existing_note.id == note_id: # if the note is found
             note_data = existing_note.model_dump() #  Get the existing note data as a dictionary
             update_data = updated_note.model_dump(exclude_unset=True) # Get the updated data, excluding unset fields
-            
+
 
             note_data.update(update_data) # update the existing note data with the new values
             for key, value in update_data.items():
@@ -54,3 +54,16 @@ def update_note(note_id: UUID, updated_note: NoteUpdate):
             return existing_note # return the updated note
         
     raise HTTPException(status_code=404, detail="Note not found") # raise an error if the note is not found
+
+
+@router.delete("/notes/{note_id}", response_model=Note) # endpoint to delete a note by id
+def delete_note(note_id: UUID):
+    """
+    Delete a note by ID
+    """
+    for index, existing_note in enumerate(notes_db): #  find the note to delete
+        if existing_note.id == note_id: #  if the note is found
+            deleted_note = notes_db.pop(index) # remove the note from the in-memory database
+            return deleted_note # return the deleted note
+        
+    raise HTTPException(status_code=404, detail="Note not found") #  raise an error if the note is not found
