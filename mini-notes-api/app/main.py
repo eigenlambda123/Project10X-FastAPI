@@ -1,7 +1,10 @@
 from fastapi import FastAPI
+from app.routes import notes  
 
-app = FastAPI() #  Initialize FastAPI app
+app = FastAPI() # Create an instance of FastAPI
 
-@app.get("/") #  Define root endpoint
-def read_root(): # Handle GET request to root endpoint
-    return {"message": "Mini Notes API is running!"} #  Return a simple JSON response
+app.include_router(notes.router) # Include the notes router
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Mini Notes API"}
