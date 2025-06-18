@@ -9,3 +9,10 @@ class NoteBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=100) # Title of the note
     content: str = Field(..., min_length=1) # Content of the note
     tags: Optional[List[str]] = Field(default=None, description="List of tags associated with the note") # tags for the note
+
+class NoteCreate(NoteBase):
+    """
+    Model for creating a new note.
+    Inherits from NoteBase and can include additional fields if needed.
+    """
+    pass
