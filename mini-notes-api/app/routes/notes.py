@@ -10,3 +10,13 @@ def get_notes():
     Retrieve all notes
     """
     return notes_db
+
+
+@router.post("/notes", response_model=Note) # endpoint to create a new note
+def create_note(note: Note):
+    """
+    Create a new note
+    """
+    new_note = Note(**note.dict()) # auto generate id and created_at
+    notes_db.append(new_note) # add the new note to the in-memory database
+    return new_note
