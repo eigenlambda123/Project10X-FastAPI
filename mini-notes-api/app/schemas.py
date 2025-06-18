@@ -21,6 +21,16 @@ class NoteCreate(NoteBase):
     pass
 
 
+class NoteUpdate(BaseModel):
+    """
+    Model for updating an existing note
+    Inherits from BaseModel and allows partial updates
+    """
+    title: Optional[str] = Field(None, max_length=100) # Optional title for the note, can be updated
+    content: Optional[str] = None # Optional content for the note, can be updated
+    tags: Optional[List[str]] = None # Optional list of tags for the note, can be updated
+
+
 class Note(NoteBase):
     """
     Model for a note that includes an ID.
