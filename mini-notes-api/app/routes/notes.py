@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from app.schemas import Note, NoteUpdate
 from app.models import notes_db
+from typing import List, Optional
 from uuid import UUID
 
 router = APIRouter()
@@ -10,7 +11,9 @@ def get_notes():
     """
     Retrieve all notes
     """
-    return notes_db
+    search: Optional[str] = Query(None, description="Search notes by title or content") # optional search query parameter
+    limit: Optional[int] = Query(10, ge=0, description="Maximum number of notes to return") # optional limit query parameter with a default value of 10
+    skip: Optional[int] = Query(0, ge=0, description="Number of notes to skip") # optional skip query parameter with a default value of 0
 
 
 @router.post("/notes", response_model=Note) # endpoint to create a new note
