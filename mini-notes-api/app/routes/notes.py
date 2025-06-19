@@ -1,17 +1,18 @@
 from fastapi import APIRouter, HTTPException, Query
+from typing import Optional
+from uuid import UUID
+
+import markdown2
+import markdown
+
 from app.schemas import Note, NoteUpdate, NoteCreate
 from app.models import notes_db
-from typing import List, Optional
-from uuid import UUID
-import markdown2, markdown
 
 router = APIRouter()
-
 
 def render_markdown(note: Note) -> str:
     """
     Render Markdown content to HTML for a given note
-    This function converts the Markdown content of a note to HTML using the markdown2
     """
     note.rendered_content = markdown2.markdown(note.content) # Convert Markdown content to HTML
     return note # return the note with rendered content
@@ -24,6 +25,7 @@ def get_notes(
     skip: int = Query(0, ge=0, description="Number of notes to skip") # optional skip query parameter with a default value of 0
 ):
     """
+    - Retrieve all notes with optional search, limit, and pagination
     - If search is provided, filter notes by title or content
     - If limit is provided, return only the specified number of notes
     - If nothing is provided, return all notes
@@ -42,33 +44,35 @@ def get_notes(
     return [render_markdown(note) for note in paginated_notes]
 
 
+@router.get("/notes/{note_id}", response_model=Note) # endpoint to retrieve a note by id
+def read_note(note_id: UUID):
+    """
+    Retrieve a note by ID
+    """
+    for note in notes_db: # iterate through the in-memory database
+        if note.id == note_id: # if the note is found
+            return note # return the note
+    raise HTTPException(status_code=404, detail="Note not found") # raise an error if the note is not found
+
+
 
 @router.post("/notes", response_model=Note) # endpoint to create a new note
 def create_note(note: NoteCreate):
     """
     Create a new note
     """
-    rendered_html = markdown.markdown(note.content)
-    note_data = note.dict()
-    note_data.pop("rendered_content", None)  # Remove if present
+    rendered_html = markdown.markdown(note.content) # Convert Markdown content to HTML
+    note_data = note.dict() # Convert the NoteCreate schema to a dictionary
+    note_data.pop("rendered_content", None)  # Remove rendered_content from the dictionary if it exists
+
+    # Create a new Note object with the provided data and rendered HTML content
     note_obj = Note(
-        **note_data,
+        **note_data, # Unpack the dictionary into the Note model
         rendered_content=rendered_html
     )
     # Save note_obj
     notes_db.append(note_obj)  # Add the new note to the in-memory database
     return note_obj
-
-
-@router.get("/notes/{note_id}", response_model=Note) # endpoint to retrieve a note by id
-def read_note(note_id: UUID):
-    """
-    Retrieve a note by ID
-    """
-    for note in notes_db:
-        if note.id == note_id:
-            return note
-    raise HTTPException(status_code=404, detail="Note not found")
 
 
 
@@ -91,6 +95,7 @@ def update_note(note_id: UUID, updated_note: NoteUpdate):
             return existing_note # return the updated note
         
     raise HTTPException(status_code=404, detail="Note not found") # raise an error if the note is not found
+
 
 
 @router.delete("/notes/{note_id}", response_model=Note) # endpoint to delete a note by id
