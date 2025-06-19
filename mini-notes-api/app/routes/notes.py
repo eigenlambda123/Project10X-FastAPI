@@ -3,8 +3,19 @@ from app.schemas import Note, NoteUpdate
 from app.models import notes_db
 from typing import List, Optional
 from uuid import UUID
+import markdown2
 
 router = APIRouter()
+
+
+def render_markdown(note: Note) -> str:
+    """
+    Render Markdown content to HTML for a given note
+    This function converts the Markdown content of a note to HTML using the markdown2
+    """
+    note.rendered_content = markdown2.markdown(note.content) # Convert Markdown content to HTML
+    return note # return the note with rendered content
+
 
 @router.get("/notes", response_model=list[Note]) # endpoint to retrieve all notes
 def get_notes():
