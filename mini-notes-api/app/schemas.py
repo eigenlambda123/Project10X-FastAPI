@@ -39,6 +39,8 @@ class Note(NoteBase):
     id: UUID = Field(default_factory=uuid4) # Unique identifier for the note, generated randomly using uuid4 for each new instance
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)) # Timestamp when the note was created in UTC for consistency in distributed systems
 
+    rendered_content: Optional[str] = None  # For Markdown-rendered HTML
+
     class Config:
         """
         Example configuration for the Note model.
