@@ -55,7 +55,8 @@ def create_note(note: NoteCreate):
         **note_data,
         rendered_content=rendered_html
     )
-    # Save note_obj to DB, etc.
+    # Save note_obj
+    notes_db.append(note_obj)  # Add the new note to the in-memory database
     return note_obj
 
 
