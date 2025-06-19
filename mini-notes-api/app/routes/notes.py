@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from app.schemas import Note, NoteUpdate
+from app.schemas import Note, NoteUpdate, NoteCreate
 from app.models import notes_db
 from typing import List, Optional
 from uuid import UUID
@@ -45,7 +45,7 @@ def get_notes():
 
 
 @router.post("/notes", response_model=Note) # endpoint to create a new note
-def create_note(note: Note):
+def create_note(note: NoteCreate):
     """
     Create a new note
     """
