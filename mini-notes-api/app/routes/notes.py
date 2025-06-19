@@ -18,14 +18,11 @@ def render_markdown(note: Note) -> str:
 
 
 @router.get("/notes", response_model=list[Note]) # endpoint to retrieve all notes
-def get_notes():
-    """
-    Retrieve all notes
-    """
-    search: Optional[str] = Query(None, description="Search notes by title or content") # optional search query parameter
-    limit: Optional[int] = Query(10, ge=0, description="Maximum number of notes to return") # optional limit query parameter with a default value of 10
-    skip: Optional[int] = Query(0, ge=0, description="Number of notes to skip") # optional skip query parameter with a default value of 0
-
+def get_notes(
+    search: Optional[str] = Query(None, description="Search notes by title or content"), # optional search query parameter
+    limit: int = Query(10, ge=0, description="Maximum number of notes to return"), # optional limit query parameter with a default value of 10
+    skip: int = Query(0, ge=0, description="Number of notes to skip") # optional skip query parameter with a default value of 0
+):
     """
     - If search is provided, filter notes by title or content
     - If limit is provided, return only the specified number of notes
@@ -34,7 +31,9 @@ def get_notes():
     filtered_notes = notes_db # start with all notes
 
     if search: # if a search query is provided
-        filtered_notes = [note for note in notes_db if search.lower() in note.title.lower() or search.lower() in note.content.lower()] # filter notes by title or content
+        filtered_notes = [
+            note for note in notes_db
+            if search.lower() in note.title.lower() or search.lower() in note.content.lower()] # filter notes by title or content
     
     # Apply pagination
     paginated_notes = filtered_notes[skip : skip + limit if limit else None]
