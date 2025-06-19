@@ -35,9 +35,12 @@ def get_notes():
 
     if search: # if a search query is provided
         filtered_notes = [note for note in notes_db if search.lower() in note.title.lower() or search.lower() in note.content.lower()] # filter notes by title or content
+    
+    # Apply pagination
+    paginated_notes = filtered_notes[skip : skip + limit if limit else None]
 
-    return filtered_notes[skip : skip + limit if limit else None] # return the filtered notes, applying skip and limit
-
+    # Render Markdown content to HTML for each note in the paginated list
+    return [render_markdown(note) for note in paginated_notes]
 
 
 
