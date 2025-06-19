@@ -15,6 +15,20 @@ def get_notes():
     limit: Optional[int] = Query(10, ge=0, description="Maximum number of notes to return") # optional limit query parameter with a default value of 10
     skip: Optional[int] = Query(0, ge=0, description="Number of notes to skip") # optional skip query parameter with a default value of 0
 
+    """
+    - If search is provided, filter notes by title or content
+    - If limit is provided, return only the specified number of notes
+    - If nothing is provided, return all notes
+    """
+    filtered_notes = notes_db # start with all notes
+
+    if search: # if a search query is provided
+        filtered_notes = [note for note in notes_db if search.lower() in note.title.lower() or search.lower() in note.content.lower()] # filter notes by title or content
+
+    return filtered_notes[skip : skip + limit if limit else None] # return the filtered notes, applying skip and limit
+
+
+
 
 @router.post("/notes", response_model=Note) # endpoint to create a new note
 def create_note(note: Note):
