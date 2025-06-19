@@ -3,7 +3,7 @@ from app.schemas import Note, NoteUpdate
 from app.models import notes_db
 from typing import List, Optional
 from uuid import UUID
-import markdown2
+import markdown2, markdown
 
 router = APIRouter()
 
@@ -49,9 +49,15 @@ def create_note(note: Note):
     """
     Create a new note
     """
-    new_note = Note(**note.dict()) # auto generate id and created_at
-    notes_db.append(new_note) # add the new note to the in-memory database
-    return new_note
+    rendered_html = markdown.markdown(note.content)
+    note_data = note.dict()
+    note_data.pop("rendered_content", None)  # Remove if present
+    note_obj = Note(
+        **note_data,
+        rendered_content=rendered_html
+    )
+    # Save note_obj to DB, etc.
+    return note_obj
 
 
 @router.get("/notes/{note_id}", response_model=Note) # endpoint to retrieve a note by id
