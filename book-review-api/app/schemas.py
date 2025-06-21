@@ -30,10 +30,19 @@ class Book(BookBase):
         orm_mode = True 
 
 
+class ReviewBase(BaseModel):
+    """Base model for Review schema"""
+    reviewer: str = Field(..., max_length=100) # Name of the reviewer
+    rating: int = Field(..., ge=1, le=5) # Rating given by the reviewer, must be between 1 and 5
+    text: Optional[str] = None # Review text, optional
+
+
 class ReviewSummary(BaseModel):
     """Schema for summarizing reviews of a book"""
     book_id: UUID # ID of the book
     average_rating: float # Average rating of the book
     total_reviews: int # Total number of reviews for the book
+
+
 
 
