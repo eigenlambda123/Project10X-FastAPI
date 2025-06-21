@@ -22,7 +22,7 @@ class BookUpdate(BookBase):
 
 class Book(BookBase):
     """Schema for Book response, including reviews"""
-    id: UUID
+    id: Optional[str] = None 
     reviews: Optional[List["Review"]] = []  # List of reviews associated with the book
 
     class Config:
