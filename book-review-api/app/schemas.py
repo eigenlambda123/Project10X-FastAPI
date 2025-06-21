@@ -29,3 +29,11 @@ class Book(BookBase):
     class Config:
         orm_mode = True 
 
+
+class ReviewSummary(BaseModel):
+    """Schema for summarizing reviews of a book"""
+    book_id: UUID # ID of the book
+    average_rating: float # Average rating of the book
+    total_reviews: int # Total number of reviews for the book
+
+
