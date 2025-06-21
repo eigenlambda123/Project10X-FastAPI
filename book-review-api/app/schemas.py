@@ -42,6 +42,15 @@ class ReviewCreate(ReviewBase):
     pass
 
 
+class Review(ReviewBase):
+    """Schema for Review response, including book ID and creation date"""
+    id: UUID # Unique identifier for the review
+    book_id: UUID # ID of the book being reviewed
+    created_at: datetime # Timestamp when the review was created
+
+    class Config:
+        orm_mode = True
+
 
 class ReviewSummary(BaseModel):
     """Schema for summarizing reviews of a book"""
