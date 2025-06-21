@@ -37,6 +37,12 @@ class ReviewBase(BaseModel):
     text: Optional[str] = None # Review text, optional
 
 
+class ReviewCreate(ReviewBase):
+    """Schema for creating a new review that inherits from ReviewBase"""
+    pass
+
+
+
 class ReviewSummary(BaseModel):
     """Schema for summarizing reviews of a book"""
     book_id: UUID # ID of the book
