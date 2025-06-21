@@ -1,65 +1,59 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.models import books_db, find_book_by_id, find_reviews_by_book_id
-from app.schemas import Book , BookUpdate
-from fastapi import HTTPException
+from app.schemas import Book, BookUpdate
 from uuid import uuid4
 
 router = APIRouter()
+
+# -------------------- READ --------------------
 
 @router.get("/", response_model=list[Book]) 
 def get_books():
     """Retrieve a list of all books"""
     return books_db
 
-
 @router.get("/{book_id}", response_model=Book)
 def get_book(book_id: str):
     """
     Retrieve a specific book by its ID, including nested reviews
     """
-
     book = find_book_by_id(book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
-    
     # Include nested reviews
     book["reviews"] = find_reviews_by_book_id(book_id)
     return book
 
-
-
-
+# -------------------- CREATE --------------------
 
 @router.post("/", response_model=Book, status_code=201)
 def create_book(book: Book):
     """Create new book"""
-    
-    new_book = book.model_dump(exclude_unset=True) # Convert Pydantic model to dict, excluding unset fields
-    new_book["id"] = str(uuid4()) # Generate a new UUID for the book ID
-    books_db.append(new_book) # Add the new book to the in-memory database
-    return new_book # Return the newly created book with its ID
+    new_book = book.model_dump(exclude_unset=True)  # Convert Pydantic model to dict, excluding unset fields
+    new_book["id"] = str(uuid4())  # Generate a new UUID for the book ID
+    books_db.append(new_book)  # Add the new book to the in-memory database
+    return new_book  # Return the newly created book with its ID
 
+# -------------------- UPDATE --------------------
 
 @router.put("/{book_id}", response_model=Book)
 def update_book(book_id: str, book: BookUpdate):
-    """Update a existing book by its ID"""
-    existing_book = find_book_by_id(book_id) # Find the book by ID
+    """Update an existing book by its ID"""
+    existing_book = find_book_by_id(book_id)  # Find the book by ID
     if not existing_book:
-        raise HTTPException(status_code=404, detail="Book not found") 
-    
-    existing_book.update(book.model_dump(exclude_unset=True)) # Update the book with new data
+        raise HTTPException(status_code=404, detail="Book not found")
+    existing_book.update(book.model_dump(exclude_unset=True))  # Update the book with new data
     return existing_book
 
+# -------------------- DELETE --------------------
 
 @router.delete("/{book_id}", status_code=204)
 def delete_book(book_id: str):
     """Delete a book by its ID"""
-    book = find_book_by_id(book_id) # Find the book by ID
-
+    book = find_book_by_id(book_id)  # Find the book by ID
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
-    
-    books_db.remove(book) # Remove the book from the in-memory database
+    books_db.remove(book)  # Remove the book from the in-memory database
     # Delete associated reviews
     global reviews_db
     reviews_db = [r for r in reviews_db if r["book_id"] != book_id]
