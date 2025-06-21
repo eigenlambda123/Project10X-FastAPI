@@ -9,7 +9,7 @@ class BookBase(BaseModel):
     author: str = Field(..., max_length=100) # Author of the book
     genre: Optional[str] = Field(None, max_length=50) # Genre of the book, optional
     published_year: int = Field(..., ge=0) # Year the book was published, must be a positive integer
-    
+
 
 class BookCreate(BookBase):
     """Schema for creating a new book that inherits from BookBase"""
@@ -21,4 +21,11 @@ class BookUpdate(BookBase):
     pass
 
 
+class Book(BookBase):
+    """Schema for Book response, including reviews"""
+    id: UUID
+    reviews: Optional[List["Review"]] = [] # List of reviews associated with the book
+
+    class Config:
+        orm_mode = True 
 
