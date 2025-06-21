@@ -1,7 +1,10 @@
 from fastapi import APIRouter
+from app.models import books_db 
+from app.schemas import Book 
 
 router = APIRouter()
 
-@router.get("/") # Define the root endpoint for books
+@router.get("/", response_model=list[Book]) 
 def get_books():
-    return {"message": "Books route works"}
+    """Retrieve a list of all books"""
+    return books_db
