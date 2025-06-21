@@ -49,3 +49,17 @@ def update_book(book_id: str, book: BookUpdate):
     
     existing_book.update(book.model_dump(exclude_unset=True)) # Update the book with new data
     return existing_book
+
+
+@router.delete("/{book_id}", status_code=204)
+def delete_book(book_id: str):
+    """Delete a book by its ID"""
+    book = find_book_by_id(book_id) # Find the book by ID
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    
+    books_db.remove(book) # Remove the book from the in-memory database
+    # Delete associated reviews
+    global reviews_db
+    reviews_db = [r for r in reviews_db if r["book_id"] != book_id]
