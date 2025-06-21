@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.models import books_db, find_book_by_id, find_reviews_by_book_id
-from app.schemas import Book 
+from app.schemas import Book , BookUpdate
 from fastapi import HTTPException
 from uuid import uuid4
 
@@ -38,3 +38,14 @@ def create_book(book: Book):
     new_book["id"] = str(uuid4()) # Generate a new UUID for the book ID
     books_db.append(new_book) # Add the new book to the in-memory database
     return new_book # Return the newly created book with its ID
+
+
+@router.put("/{book_id}", response_model=Book)
+def update_book(book_id: str, book: BookUpdate):
+    """Update a existing book by its ID"""
+    existing_book = find_book_by_id(book_id) # Find the book by ID
+    if not existing_book:
+        raise HTTPException(status_code=404, detail="Book not found") 
+    
+    existing_book.update(book.model_dump(exclude_unset=True)) # Update the book with new data
+    return existing_book
