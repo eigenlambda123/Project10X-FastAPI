@@ -51,3 +51,15 @@ reviews_db = [
         "created_at": datetime.utcnow()
     }
 ]
+
+
+
+# --Utility functions--
+
+# Find a book by ID
+def find_book_by_id(book_id: str):
+    return next((book for book in books_db if book["id"] == book_id), None)
+
+# Find reviews by book ID
+def find_reviews_by_book_id(book_id: str):
+    return [review for review in reviews_db if review["book_id"] == book_id]
