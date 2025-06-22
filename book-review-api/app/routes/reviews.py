@@ -3,16 +3,32 @@ from app.models import books_db, find_book_by_id, reviews_db, find_reviews_by_bo
 from app.schemas import Review, ReviewCreate
 from datetime import datetime
 from uuid import uuid4
+from typing import Optional
 
 router = APIRouter()
 
 @router.get("/{book_id}/reviews", response_model=list[Review]) 
-def get_reviews(book_id: str):
+def get_reviews(
+    book_id: str,
+    rating: Optional[int] = None,
+    reviewer: Optional[str] = None,
+    min_rating: Optional[int] = None
+):
     """Get all reviews for a specific book by its ID"""
     if not find_book_by_id(book_id): # check if the book exists
         raise HTTPException(status_code=404, detail="Book not found") # raise an error if the book does not exist
     
-    return find_reviews_by_book_id(book_id) # return all reviews for the book
+    results = [r for r in reviews_db if r["book_id"] == book_id] # filter reviews by book ID
+
+    # filter reviews based on rating, min_rating, and reviewer
+    if rating is not None:
+        results = [r for r in results if r["rating"] == rating]
+    if min_rating is not None:
+        results = [r for r in results if r["rating"] >= min_rating]
+    if reviewer:
+        results = [r for r in results if r["reviewer"].lower() == reviewer.lower()]
+
+    return results
 
 
 @router.post("/{book_id}/reviews", response_model=Review, status_code=201)
