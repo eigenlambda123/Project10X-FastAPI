@@ -2,15 +2,24 @@ from fastapi import APIRouter, HTTPException
 from app.models import books_db, find_book_by_id, find_reviews_by_book_id
 from app.schemas import Book, BookUpdate
 from uuid import uuid4
+from typing import Optional
 
 router = APIRouter()
 
 # -------------------- READ --------------------
 
 @router.get("/", response_model=list[Book]) 
-def get_books():
+def get_books(author: Optional[str] = None, genre: Optional[str] = None):
     """Retrieve a list of all books"""
-    return books_db
+    results = books_db  # start with all books
+
+    # Filter books by author and genre if provided
+    if author:
+        results = [book for book in results if book.get("author") == author]
+    if genre:
+        results = [book for book in results if book.get("genre") == genre]
+
+    return results # return the filtered list of books
 
 @router.get("/{book_id}", response_model=Book)
 def get_book(book_id: str):
