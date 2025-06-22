@@ -22,30 +22,16 @@ def get_books(author: Optional[str] = None, genre: Optional[str] = None):
     return results # return the filtered list of books
 
 @router.get("/{book_id}", response_model=Book)
-def get_book(
-    book_id: str,
-    rating: Optional[int] = None,
-    reviewer: Optional[str] = None,
-    min_rating: Optional[int] = None
-):
+def get_book(book_id: str):
     """
     Retrieve a specific book by its ID, including nested reviews
     """
     book = find_book_by_id(book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
-    
-    results = [r for r in reviews_db if r["book_id"] == book_id] # filter reviews by book ID
-
-    # Filter reviews based on rating, min_rating, and reviewer parameters
-    if rating is not None:
-        results = [r for r in results if r["rating"] == rating]
-    if min_rating is not None:
-        results = [r for r in results if r["rating"] >= min_rating]
-    if reviewer:
-        results = [r for r in results if r["reviewer"].lower() == reviewer.lower()]
-
-    return results
+    # Include nested reviews
+    book["reviews"] = find_reviews_by_book_id(book_id)
+    return book
 
 # -------------------- CREATE --------------------
 
