@@ -22,3 +22,9 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     """Schema for outputting user data"""
     id: UUID
+
+
+
+class UserInDB(UserOut):
+    """Schema for user data stored in the database"""
+    hashed_password: str
