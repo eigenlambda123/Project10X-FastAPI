@@ -1,4 +1,3 @@
-
 from passlib.context import CryptContext
 from .database import fake_users_db
 from datetime import datetime, timedelta
