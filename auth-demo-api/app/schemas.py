@@ -43,3 +43,10 @@ class Token(BaseModel):
     """Schema for JWT token response"""
     access_token: str
     token_type: str = "bearer"
+
+
+
+class TokenData(BaseModel):
+    """Schema for token data extracted from the JWT, including user role"""
+    username: Optional[str] = None
+    role: Optional[str] = None
