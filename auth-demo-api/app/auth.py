@@ -1,7 +1,6 @@
 
 from passlib.context import CryptContext
 from .database import fake_users_db
-# -- Authentication Configuration --
 from datetime import datetime, timedelta
 from jose import jwt
 
