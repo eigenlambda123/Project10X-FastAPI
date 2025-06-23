@@ -16,3 +16,9 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """Schema for creating a new user"""
     password: str = Field(..., min_length=6)
+
+
+
+class UserOut(UserBase):
+    """Schema for outputting user data"""
+    id: UUID
