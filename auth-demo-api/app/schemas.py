@@ -10,3 +10,9 @@ class UserBase(BaseModel):
     email: EmailStr
     role: Literal["user", "admin"] = "user" # default role is 'user' 
     is_active: bool = True
+
+
+
+class UserCreate(UserBase):
+    """Schema for creating a new user"""
+    password: str = Field(..., min_length=6)
