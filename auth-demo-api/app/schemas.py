@@ -28,3 +28,11 @@ class UserOut(UserBase):
 class UserInDB(UserOut):
     """Schema for user data stored in the database"""
     hashed_password: str
+
+
+# --- AUTH / TOKEN SCHEMAS ---
+
+class LoginRequest(BaseModel):
+    """Schema for user login request"""
+    username: str
+    password: str = Field(..., min_length=6)
