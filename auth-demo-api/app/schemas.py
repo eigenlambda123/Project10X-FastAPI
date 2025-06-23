@@ -36,3 +36,10 @@ class LoginRequest(BaseModel):
     """Schema for user login request"""
     username: str
     password: str = Field(..., min_length=6)
+
+
+
+class Token(BaseModel):
+    """Schema for JWT token response"""
+    access_token: str
+    token_type: str = "bearer"
