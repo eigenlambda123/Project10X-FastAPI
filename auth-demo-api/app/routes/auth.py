@@ -1,9 +1,11 @@
 from fastapi import APIRouter
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from app.schemas import UserCreate, Token, LoginRequest
 from app.database import fake_users_db, hash_password
 from app.auth import create_access_token, verify_password
 from uuid import uuid4
+from fastapi.security import OAuth2PasswordRequestForm
+
 
 router = APIRouter()
 
@@ -40,11 +42,11 @@ async def register(user: UserCreate):
 
 
 @router.post("/login", response_model=Token)
-async def login(credentials: LoginRequest):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """Login a user and return an access token"""
 
     # Check if user exists and is active
-    user = fake_users_db.get(credentials.username)
+    user = fake_users_db.get(form_data.username)
     if not user or not user["is_active"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -53,7 +55,7 @@ async def login(credentials: LoginRequest):
         )
 
     # Check if password is valid
-    if not verify_password(credentials.password, user["hashed_password"]):
+    if not verify_password(form_data.password, user["hashed_password"]):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid username or password"
