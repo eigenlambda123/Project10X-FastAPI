@@ -16,7 +16,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) # decode the token
         username: str = payload.get("sub") # get the username from the token payload
-        role: str = payload.get("role") # get the role from the token payload
+        role: str = payload.get("role") # get the role from the token payload   
         if username is None:
             raise HTTPException(status_code=401, detail="Invalid token")
         user = fake_users_db.get(username)
