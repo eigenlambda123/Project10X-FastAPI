@@ -1,7 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.deps import get_current_user
+from app.schemas import UserOut
+from uuid import UUID
 
 router = APIRouter()
 
-@router.post("/")
-async def create_user():
-    return {"message": "User creation placeholder"}
+
+@router.get("/me", response_model=UserOut)
+async def read_current_user(current_user: dict = Depends(get_current_user)):
+    """Get the current logged-in user"""
+    return current_user
