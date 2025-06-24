@@ -1,15 +1,11 @@
 from fastapi import APIRouter
 from fastapi import HTTPException, status
-from app.schemas import UserCreate
+from app.schemas import UserCreate, Token, LoginRequest
 from app.database import fake_users_db, hash_password
-from app.auth import create_access_token
+from app.auth import create_access_token, verify_password
 from uuid import uuid4
 
 router = APIRouter()
-
-@router.post("/login")
-async def login():
-    return {"message": "Login endpoint"}
 
 
 @router.post("/register")
@@ -39,3 +35,34 @@ async def register(user: UserCreate):
         data={"sub": new_user["username"], "role": new_user["role"]}
     )
     return {"access_token": access_token, "token_type": "bearer"} # return the access token and token type
+
+
+
+
+@router.post("/login", response_model=Token)
+async def login(credentials: LoginRequest):
+    """Login a user and return an access token"""
+
+    # Check if user exists and is active
+    user = fake_users_db.get(credentials.username)
+    if not user or not user["is_active"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Check if password is valid
+    if not verify_password(credentials.password, user["hashed_password"]):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password"
+            )
+
+    # Create access token
+    access_token = create_access_token(
+        data={"sub": user["username"], "role": user["role"]}
+    )
+
+    # Return the access token
+    return {"access_token": access_token, "token_type": "bearer"}
