@@ -25,3 +25,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return user
     except JWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
+    
+
+def get_current_admin(user: dict = Depends(get_current_user)):
+    """ Check if the current user is an admin"""
+    if user["role"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return user
