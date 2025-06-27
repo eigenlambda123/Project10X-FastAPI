@@ -13,7 +13,7 @@ class ReportRequest(BaseModel):
     name: str
     details: dict
 
-@router.post("/report")
+@router.post("/")
 async def generate_report_task(payload: ReportRequest, background_tasks: BackgroundTasks):
     """Endpoint to generate a report asynchronously"""
 

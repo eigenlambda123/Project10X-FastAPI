@@ -12,7 +12,7 @@ class NotifyRequest(BaseModel):
     message: str
 
 
-@router.post("/notify")
+@router.post("/")
 async def notify_user(payload: NotifyRequest, background_tasks: BackgroundTasks):
     """Endpoint to send a notification to a user via email"""
 
