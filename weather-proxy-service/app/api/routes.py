@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from app.services.weather_proxy import fetch_weather_data, WeatherAPIError
+from app.schemas.weather import WeatherResponse
 
 router = APIRouter()
 
-@router.get("/weather")
+@router.get("/weather", response_model=WeatherResponse)
 async def get_weather(
     city: Optional[str] = Query(None),
     lat: Optional[float] = Query(None),
@@ -15,14 +16,16 @@ async def get_weather(
     try:
         # Fetch weather data from the OpenWeatherMap API using city or lat/lon
         data = await fetch_weather_data(city=city, lat=lat, lon=lon)
-        return {
-            "source": "OpenWeatherMap",
-            "location": data.get("name"),
-            "temperature": data.get("main", {}).get("temp"),
-            "description": data.get("weather", [{}])[0].get("description"),
-            "humidity": data.get("main", {}).get("humidity"),
-            "wind_speed": data.get("wind", {}).get("speed"),
-        }
+
+        # return a structured response using the WeatherResponse schema
+        return WeatherResponse(
+            source="OpenWeatherMap",
+            location=data.get("name"),
+            temperature=data["main"]["temp"],
+            description=data["weather"][0]["description"],
+            humidity=data["main"]["humidity"],
+            wind_speed=data["wind"]["speed"],
+        )
 
     # Exceptions
     except ValueError as e:
