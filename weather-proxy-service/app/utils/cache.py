@@ -35,3 +35,13 @@ def get_from_cache(key: str):
         del cache_store[key]  
         return None
     return data
+
+
+def set_cache(key: str, data: Any):
+    """Store data in cache with an expiration time"""
+
+    # Set the expiration time to current time + TTL
+    expires_at = time.time() + CACHE_TTL_SECONDS
+    # Store the data in the cache with the expiration time
+    cache_store[key] = (expires_at, data)
+    
