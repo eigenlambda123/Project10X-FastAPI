@@ -27,3 +27,10 @@ def test_invalid_location():
     assert response.status_code == 404 or response.status_code == 400 or response.status_code == 502 # Check if the status code is 404 Not Found or 400 Bad Request or 502 Bad Gateway
 
 
+def test_missing_params():
+    """
+    Test for missing query parameters
+    """
+    response = client.get("/weather") # GET request without city parameter
+    assert response.status_code == 400 # Check if the status code is 400 Bad Request
+
