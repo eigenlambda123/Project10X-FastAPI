@@ -35,6 +35,14 @@ def test_missing_params():
     assert response.status_code == 400 # Check if the status code is 400 Bad Request
 
 
+def test_invalid_combination():
+    """
+    Test for invalid combination of query parameters
+    """
+    response = client.get("/weather?city=Manila&lat=14.6") # GET request with both city and lat parameters
+    assert response.status_code == 400 # Check if the status code is 400 Bad Request
+
+
 def test_cache_hit():
     """
     Test for cache hit functionality
