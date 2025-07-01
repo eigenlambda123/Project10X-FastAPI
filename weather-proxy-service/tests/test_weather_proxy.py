@@ -17,3 +17,13 @@ def test_weather_success():
     assert "description" in data
     assert "humidity" in data
     assert "location" in data
+
+
+def test_invalid_location():
+    """
+    Test for invalid location input
+    """
+    response = client.get("/weather?city=ThisCityDoesNotExistXYZ") # GET request to a non-existent city
+    assert response.status_code == 404 or response.status_code == 400 or response.status_code == 502 # Check if the status code is 404 Not Found or 400 Bad Request or 502 Bad Gateway
+
+
