@@ -34,3 +34,16 @@ def test_missing_params():
     response = client.get("/weather") # GET request without city parameter
     assert response.status_code == 400 # Check if the status code is 400 Bad Request
 
+
+def test_cache_hit():
+    """
+    Test for cache hit functionality
+    """
+    # First call (miss)
+    response1 = client.get("/weather?city=Manila")
+    assert response1.status_code == 200
+
+    # Second call (should be hit)
+    response2 = client.get("/weather?city=Manila")
+    assert response2.status_code == 200
+    
