@@ -69,3 +69,12 @@ def test_weather_by_coordinates():
     assert "description" in data
     assert "location" in data
 
+
+def test_weather_no_params():
+    """
+    Test for missing query parameters
+    """
+    response = client.get("/weather")
+    assert response.status_code == 400 # Check if the status code is 400 Bad Request
+
+
