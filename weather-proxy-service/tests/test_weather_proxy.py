@@ -76,5 +76,3 @@ def test_weather_no_params():
     """
     response = client.get("/weather")
     assert response.status_code == 400 # Check if the status code is 400 Bad Request
-
-
