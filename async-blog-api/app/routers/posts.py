@@ -1,3 +1,4 @@
+from unittest import result
 from fastapi import Depends, APIRouter
 from app.db import async_session
 from sqlalchemy.future import select
@@ -47,4 +48,7 @@ async def read_posts(session: AsyncSession = Depends(get_session)):
         session (AsyncSession): The database session
     """
     result = await session.exec(select(BlogPost))
-    return result.all()
+    posts = result.all()
+
+    # Convert ORM models to Pydantic models for response
+    return [BlogPostRead.from_orm(post) for post in posts]
