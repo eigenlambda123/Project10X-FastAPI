@@ -50,5 +50,5 @@ async def read_posts(session: AsyncSession = Depends(get_session)):
     result = await session.exec(select(BlogPost))
     posts = result.all()
 
-    # Convert ORM models to Pydantic models for response
-    return [BlogPostRead.from_orm(post) for post in posts]
+    # Convert ORM models to Pydantic models for response (Pydantic v2+)
+    return [BlogPostRead.model_validate(post) for post in posts]
