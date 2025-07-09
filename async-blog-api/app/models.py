@@ -2,6 +2,18 @@ from datetime import datetime
 from typing import Optional
 from sqlmodel import SQLModel, Field
 
+
+class PostTagLink(SQLModel, table=True):
+    """
+    PostTagLink model representing the association between blog posts and tags
+    Attributes:
+        post_id (Optional[int]): Unique identifier for the blog post.
+        tag_id (Optional[int]): Unique identifier for the tag.
+    """
+    post_id: Optional[int] = Field(default=None, foreign_key="blogpost.id", primary_key=True)
+    tag_id: Optional[int] = Field(default=None, foreign_key="tag.id", primary_key=True)
+
+
 class BlogPost(SQLModel, table=True):
     """
     BlogPost model representing a blog post in the database
