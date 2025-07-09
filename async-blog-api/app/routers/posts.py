@@ -2,6 +2,7 @@ from fastapi import Depends, APIRouter
 from app.db import async_session
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
 from app.models import BlogPost, Tag
 from app.schemas import BlogPostCreate, BlogPostRead
@@ -36,3 +37,14 @@ async def create_post(post: BlogPostCreate, session: AsyncSession = Depends(get_
     await session.commit()
     await session.refresh(db_post, attribute_names=["tags"])
     return db_post
+
+
+@router.get("/", response_model=List[BlogPostRead])
+async def read_posts(session: AsyncSession = Depends(get_session)):
+    """
+    GET endpoint to read all blog posts
+    Args:
+        session (AsyncSession): The database session
+    """
+    result = await session.exec(select(BlogPost))
+    return result.all()
