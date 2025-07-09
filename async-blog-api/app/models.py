@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 
 
 class PostTagLink(SQLModel, table=True):
@@ -13,6 +13,7 @@ class PostTagLink(SQLModel, table=True):
     post_id: Optional[int] = Field(default=None, foreign_key="blogpost.id", primary_key=True)
     tag_id: Optional[int] = Field(default=None, foreign_key="tag.id", primary_key=True)
 
+    
 
 class BlogPost(SQLModel, table=True):
     """
@@ -31,6 +32,10 @@ class BlogPost(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+    # Relationship to tags through the PostTagLink association table
+    tags: List["Tag"] = Relationship(back_populates="posts", link_model=PostTagLink)
+
+
 
 class Tag(SQLModel, table=True):
     """
@@ -41,3 +46,6 @@ class Tag(SQLModel, table=True):
     """
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
+
+    # Relationship to blog posts through the PostTagLink association table
+    posts: List[BlogPost] = Relationship(back_populates="tags", link_model=PostTagLink)
