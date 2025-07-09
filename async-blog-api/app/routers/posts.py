@@ -3,6 +3,7 @@ from fastapi import Depends, APIRouter
 from app.db import async_session
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from typing import List
 
 from app.models import BlogPost, Tag
@@ -40,6 +41,7 @@ async def create_post(post: BlogPostCreate, session: AsyncSession = Depends(get_
     return db_post
 
 
+
 @router.get("/", response_model=List[BlogPostRead])
 async def read_posts(session: AsyncSession = Depends(get_session)):
     """
@@ -47,8 +49,12 @@ async def read_posts(session: AsyncSession = Depends(get_session)):
     Args:
         session (AsyncSession): The database session
     """
-    result = await session.exec(select(BlogPost))
-    posts = result.all()
+    # Use selectinload to eagerly load tags for each blog post
+    # This avoids the N+1 query problem by loading all tags in a single query
+    result = await session.exec(
+        select(BlogPost).options(selectinload(BlogPost.tags))
+    )
+    posts = result.scalars().all()
 
     # Convert ORM models to Pydantic models for response (Pydantic v2+)
     return [BlogPostRead.model_validate(post) for post in posts]
