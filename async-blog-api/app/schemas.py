@@ -17,7 +17,7 @@ class TagRead(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BlogPostCreate(BaseModel):
@@ -36,4 +36,4 @@ class BlogPostRead(BaseModel):
     tags: List[TagRead] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
