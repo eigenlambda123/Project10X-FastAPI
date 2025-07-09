@@ -18,3 +18,14 @@ class BlogPost(SQLModel, table=True):
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Tag(SQLModel, table=True):
+    """
+    Tag model representing a tag in the database
+    Attributes:
+        id (Optional[int]): Unique identifier for the tag.
+        name (str): Name of the tag.
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
