@@ -77,3 +77,41 @@ async def read_post(post_id: int, session: AsyncSession = Depends(get_session)):
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return BlogPostRead.model_validate(post)
+
+
+
+@router.put("/{post_id}", response_model=BlogPostRead)
+async def update_post(post_id: int, data: BlogPostCreate, session: AsyncSession = Depends(get_session)):
+    """
+    PUT endpoint to update an existing blog post by ID
+    Args:
+        post_id (int): The ID of the blog post to update
+        data (BlogPostCreate): The updated blog post data
+        session (AsyncSession): The database session
+    """
+ 
+    # retrieve an existing post via its ID
+    result = await session.exec(
+        select(BlogPost).options(selectinload(BlogPost.tags)).where(BlogPost.id == post_id)
+    )
+
+    # Use scalar_one_or_none to get a single result or None if not found
+    post = result.scalar_one_or_none()
+    
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # Update the post's title and content
+    # Pydantic v2+ allows direct assignment to model attributes
+    post.title = data.title
+    post.content = data.content
+
+    # If there are tags, update them via the relationship
+    if data.tag_ids:
+        tags = await session.exec(select(Tag).where(Tag.id.in_(data.tag_ids)))
+        post.tags = tags.all()
+    
+    await session.commit()
+    await session.refresh(post, attribute_names=["tags"])
+
+    return BlogPostRead.model_validate(post)
