@@ -1,11 +1,10 @@
 from unittest import result
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, HTTPException
 from app.db import async_session
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from typing import List
-
 from app.models import BlogPost, Tag
 from app.schemas import BlogPostCreate, BlogPostRead
 
@@ -58,3 +57,23 @@ async def read_posts(session: AsyncSession = Depends(get_session)):
 
     # Convert ORM models to Pydantic models for response (Pydantic v2+)
     return [BlogPostRead.model_validate(post) for post in posts]
+
+
+@router.get("/{post_id}", response_model=BlogPostRead)
+async def read_post(post_id: int, session: AsyncSession = Depends(get_session)):
+    """
+    GET endpoint to read a single blog post by ID
+    Args:
+        post_id (int): The ID of the blog post to read
+        session (AsyncSession): The database session
+    """
+    # Use selectinload to eagerly load tags for the specific blog post
+    result = await session.exec(
+        select(BlogPost).options(selectinload(BlogPost.tags)).where(BlogPost.id == post_id)
+    )
+
+    # Use scalar_one_or_none to get a single result or None if not found
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return BlogPostRead.model_validate(post)
