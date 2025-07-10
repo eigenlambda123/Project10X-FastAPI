@@ -16,4 +16,13 @@ async def get_session() -> AsyncSession:
     async with async_session() as session:
         yield session
 
-    
+@router.post("/", response_model=TagRead)
+async def create_tag(tag: TagCreate, session: AsyncSession = Depends(get_session)):
+    """
+    POST endpoint to create a new tag
+    """
+    db_tag = Tag(name=tag.name)
+    session.add(db_tag)
+    await session.commit()
+    await session.refresh(db_tag)
+    return db_tag
