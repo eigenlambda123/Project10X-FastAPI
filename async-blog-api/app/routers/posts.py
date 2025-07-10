@@ -115,3 +115,21 @@ async def update_post(post_id: int, data: BlogPostCreate, session: AsyncSession 
     await session.refresh(post, attribute_names=["tags"])
 
     return BlogPostRead.model_validate(post)
+
+
+
+@router.delete("/{post_id}")
+async def delete_post(post_id: int, session: AsyncSession = Depends(get_session)):
+    """
+    DELETE endpoint to delete a blog post by ID
+    Args:
+        post_id (int): The ID of the blog post to delete
+        session (AsyncSession): The database session
+    """
+
+    post = await session.get(BlogPost, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    await session.delete(post)
+    await session.commit()
+    return {"detail": "Post deleted"}
