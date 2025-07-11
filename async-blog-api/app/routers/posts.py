@@ -1,10 +1,9 @@
-from unittest import result
-from fastapi import Depends, APIRouter, HTTPException
-from app.db import async_session
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlmodel import select
 from sqlalchemy.orm import selectinload
 from typing import List
+from app.db import async_session
 from app.models import BlogPost, Tag
 from app.schemas import BlogPostCreate, BlogPostRead
 
@@ -17,6 +16,7 @@ async def get_session() -> AsyncSession:
     """
     async with async_session() as session:
         yield session
+
 
 
 @router.post("/", response_model=BlogPostRead)
@@ -42,21 +42,33 @@ async def create_post(post: BlogPostCreate, session: AsyncSession = Depends(get_
 
 
 @router.get("/", response_model=List[BlogPostRead])
-async def read_posts(session: AsyncSession = Depends(get_session)):
+async def read_posts( 
+    tag: str | None = Query(default=None),
+    session: AsyncSession = Depends(get_session)
+):
     """
     GET endpoint to read all blog posts
-    Args:
-        session (AsyncSession): The database session
     """
-    # Use selectinload to eagerly load tags for each blog post
-    # This avoids the N+1 query problem by loading all tags in a single query
-    result = await session.exec(
-        select(BlogPost).options(selectinload(BlogPost.tags))
-    )
-    posts = result.scalars().all()
+    # If a tag is specified, filter posts by that tag
+    # Using Query to allow optional tag filtering
+    # If tag is None, it retrieves all posts
+    # Using selectinload to eagerly load tags for performance
+    if tag:
+        result = await session.exec(
+            select(BlogPost)
+            .join(BlogPost.tags)
+            .where(Tag.name == tag)
+            .options(selectinload(BlogPost.tags))
+        )
+    else:  
+        result = await session.exec(
+            select(BlogPost).options(selectinload(BlogPost.tags))
+        )
+    posts = result.all()
 
     # Convert ORM models to Pydantic models for response (Pydantic v2+)
     return [BlogPostRead.model_validate(post) for post in posts]
+
 
 
 @router.get("/{post_id}", response_model=BlogPostRead)
@@ -72,8 +84,9 @@ async def read_post(post_id: int, session: AsyncSession = Depends(get_session)):
         select(BlogPost).options(selectinload(BlogPost.tags)).where(BlogPost.id == post_id)
     )
 
-    # Use scalar_one_or_none to get a single result or None if not found
-    post = result.scalar_one_or_none()
+    # get the single result or None if not found
+    # Using one_or_none to avoid exceptions if no post is found
+    post = result.one_or_none()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return BlogPostRead.model_validate(post)

@@ -25,7 +25,7 @@ async def create_tag(tag: TagCreate, session: AsyncSession = Depends(get_session
     session.add(db_tag)
     await session.commit()
     await session.refresh(db_tag)
-    return db_tag
+    return TagRead.model_validate(db_tag)
 
 
 @router.get("/", response_model=List[TagRead])
@@ -34,4 +34,5 @@ async def read_tags(session: AsyncSession = Depends(get_session)):
     GET endpoint to read all tags
     """
     result = await session.exec(select(Tag))
-    return result.all()
+    tags = result.all()
+    return [TagRead.model_validate(tag) for tag in tags]
