@@ -6,7 +6,7 @@ import jwt
 app = FastAPI()
 
 # Example JWT token generation for an admin user
-token = jwt.encode({"sub": "admin@example.com", "is_admin": True}, "your-secret-key", algorithm="HS256")
+token = jwt.encode({"sub": "admin@example.com", "is_admin": True}, "secret", algorithm="HS256")
 print(f"Token: {token}")
 
 @app.on_event("startup")
