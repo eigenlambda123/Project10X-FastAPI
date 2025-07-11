@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
-from app.models import Comment
-from app.schemas import CommentRead
+from fastapi import APIRouter, Depends, HTTPException
+from app.models import Comment, BlogPost
+from app.schemas import CommentRead, CommentCreate
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 from typing import List
@@ -29,3 +29,30 @@ async def read_comments(post_id: int, session: AsyncSession = Depends(get_sessio
         select(Comment).where(Comment.post_id == post_id)
     )
     return result.all()
+
+
+
+@router.post("/", response_model=CommentRead)
+async def create_comment(
+    post_id: int,
+    comment: CommentCreate,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    POST endpoint to create a new comment on a blog post
+    Args:
+        post_id (int): The ID of the blog post to add a comment to
+        comment (CommentCreate): The comment data to create
+    """
+    # get to check if the post exists via post_id
+    # if the post does not exist, raise a 404 error
+    post = await session.get(BlogPost, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # create a new comment instance and associate it with the post_id
+    db_comment = Comment(post_id=post_id, content=comment.content)
+    session.add(db_comment)
+    await session.commit()
+    await session.refresh(db_comment)
+    return db_comment
