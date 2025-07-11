@@ -59,22 +59,30 @@ async def read_posts(
         session (AsyncSession): The database session
     """
 
+    # base query to select all blog posts with eager loading of tags
     base_stmt = select(BlogPost).options(selectinload(BlogPost.tags))
     
+    # If a tag is provided, filter posts by that tag
+    # This uses a join to filter posts that have the specified tag
+    # If no tag is provided, it will skip this filter
     if tag:
         base_stmt = base_stmt.join(BlogPost.tags).where(Tag.name == tag)
     
-    # Count total matching posts before slicing
+    # Count total posts for pagination
+    # we execute the base statement without pagination to get the total count
     count_result = await session.exec(base_stmt)
     total = len(count_result.all())
 
-    # Apply pagination to query
+    # Apply pagination to the base statement
+    # offset and limit are applied to the base statement to get the paginated results
     paginated_stmt = base_stmt.offset(offset).limit(limit)
     result = await session.exec(paginated_stmt)
     posts = result.all()
 
     items = [BlogPostRead.model_validate(post).model_dump() for post in posts]
 
+    # Return paginated response
+    # use jsonable_encoder for serializing the datetime fields
     return JSONResponse(
     content=jsonable_encoder({
         "total": total,
