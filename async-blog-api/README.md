@@ -178,8 +178,6 @@ async-blog-api/
 │   │   ├── posts.py
 │   │   ├── tags.py
 │   │   └── comments.py
-│   ├── utils/
-│   │   └── pagination.py (optional)
 │   └── core/
 │       └── auth.py
 └── requirements.txt
