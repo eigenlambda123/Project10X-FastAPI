@@ -41,10 +41,12 @@ class BlogPostRead(BaseModel):
 
 
 class CommentCreate(BaseModel):
+    """CommentCreate model for creating a new comment"""
     content: str
 
 
 class CommentRead(BaseModel):
+    """CommentRead model for reading comment data"""
     id: int
     content: str
     created_at: datetime
