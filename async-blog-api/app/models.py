@@ -35,6 +35,8 @@ class BlogPost(SQLModel, table=True):
     # Relationship to tags through the PostTagLink association table
     tags: List["Tag"] = Relationship(back_populates="posts", link_model=PostTagLink)
 
+    # One-to-Many Relationship to comments
+    comments: List["Comment"] = Relationship(back_populates="post")
 
 
 class Tag(SQLModel, table=True):
@@ -63,3 +65,6 @@ class Comment(SQLModel, table=True):
     post_id: int = Field(foreign_key="blogpost.id")
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Relationship to the blog post
+    post: Optional[BlogPost] = Relationship(back_populates="comments")
