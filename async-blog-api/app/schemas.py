@@ -35,6 +35,7 @@ class CommentRead(BaseModel):
 
     class Config:
         from_attributes = True
+        extra = "ignore"
 
 
         
@@ -58,5 +59,6 @@ class BlogPostRead(BaseModel):
 
     class Config:
         from_attributes = True
+        extra = "ignore"
 
 

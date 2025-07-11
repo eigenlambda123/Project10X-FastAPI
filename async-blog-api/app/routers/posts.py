@@ -6,7 +6,7 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 from typing import List
 from app.db import async_session
-from app.models import BlogPost, Tag
+from app.models import BlogPost, Tag, Comment
 from app.schemas import BlogPostCreate, BlogPostRead
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
@@ -59,22 +59,21 @@ async def read_posts(
         session (AsyncSession): The database session
     """
 
-    # base query to select all blog posts with eager loading of tags
-    base_stmt = select(BlogPost).options(selectinload(BlogPost.tags))
-    
+    # base query
+    base_stmt = select(BlogPost).options(
+        selectinload(BlogPost.tags)
+    )
+
     # If a tag is provided, filter posts by that tag
-    # This uses a join to filter posts that have the specified tag
     # If no tag is provided, it will skip this filter
     if tag:
         base_stmt = base_stmt.join(BlogPost.tags).where(Tag.name == tag)
     
-    # Count total posts for pagination
-    # we execute the base statement without pagination to get the total count
+    # Count total posts for pagination using base_stmt
     count_result = await session.exec(base_stmt)
     total = len(count_result.all())
 
-    # Apply pagination to the base statement
-    # offset and limit are applied to the base statement to get the paginated results
+    # Apply pagination to the base statement using offset and limit
     paginated_stmt = base_stmt.offset(offset).limit(limit)
     result = await session.exec(paginated_stmt)
     posts = result.all()
@@ -107,7 +106,7 @@ async def read_post(post_id: int, session: AsyncSession = Depends(get_session)):
     """
     # Use selectinload to eagerly load tags for the specific blog post
     result = await session.exec(
-        select(BlogPost).options(selectinload(BlogPost.tags)).where(BlogPost.id == post_id)
+        select(BlogPost).options(selectinload(BlogPost.tags), selectinload(BlogPost.comments)).where(BlogPost.id == post_id)
     )
 
     # get the single result or None if not found
