@@ -61,4 +61,15 @@ class BlogPostRead(BaseModel):
         from_attributes = True
         extra = "ignore"
 
+class BlogPostReadNoComments(BaseModel):
+    """BlogPostReadNoComments model for reading blog post data without comments"""
+    id: int
+    title: str
+    content: str
+    created_at: datetime
+    updated_at: datetime
+    tags: List[TagRead] = []
 
+    class Config:
+        from_attributes = True
+        extra = "ignore"

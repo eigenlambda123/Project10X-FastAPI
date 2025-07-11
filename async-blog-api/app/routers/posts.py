@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from typing import List
 from app.db import async_session
 from app.models import BlogPost, Tag, Comment
-from app.schemas import BlogPostCreate, BlogPostRead
+from app.schemas import BlogPostCreate, BlogPostRead, BlogPostReadNoComments
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
@@ -43,7 +43,7 @@ async def create_post(post: BlogPostCreate, session: AsyncSession = Depends(get_
 
 
 
-@router.get("/", response_model=List[BlogPostRead])
+@router.get("/", response_model=List[BlogPostReadNoComments])
 async def read_posts( 
     tag: str | None = Query(default=None),
     limit: int = Query(default=10, ge=1, le=100),
@@ -78,7 +78,7 @@ async def read_posts(
     result = await session.exec(paginated_stmt)
     posts = result.all()
 
-    items = [BlogPostRead.model_validate(post).model_dump() for post in posts]
+    items = [BlogPostReadNoComments.model_validate(post).model_dump() for post in posts]
 
     # Return paginated response
     # use jsonable_encoder for serializing the datetime fields
