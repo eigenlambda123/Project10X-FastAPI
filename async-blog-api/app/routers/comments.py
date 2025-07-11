@@ -60,7 +60,7 @@ async def create_comment(
 
 
 
-@router.delete("/comments/{id}")
+@router.delete("/{id}")
 async def delete_comment(
     id: int,
     session: AsyncSession = Depends(get_session),
