@@ -17,3 +17,15 @@ def decode_token(token: str):
         return payload  # contains "sub", "is_admin", etc.
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Get the current user from the JWT token"""
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    # Decode the token to get user information
+    payload = decode_token(token)
+    return payload
