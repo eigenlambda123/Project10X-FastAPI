@@ -20,24 +20,6 @@ class TagRead(BaseModel):
         from_attributes = True
 
 
-class BlogPostCreate(BaseModel):
-    """ BlogPostCreate model for creating a new blog post"""
-    title: str
-    content: str
-    tag_ids: List[int] = []
-
-class BlogPostRead(BaseModel):
-    """BlogPostRead model for reading blog post data"""
-    id: int
-    title: str
-    content: str
-    created_at: datetime
-    updated_at: datetime
-    tags: List[TagRead] = []
-
-    class Config:
-        from_attributes = True
-
 
 
 class CommentCreate(BaseModel):
@@ -53,3 +35,28 @@ class CommentRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+        
+
+
+class BlogPostCreate(BaseModel):
+    """ BlogPostCreate model for creating a new blog post"""
+    title: str
+    content: str
+    tag_ids: List[int] = []
+
+class BlogPostRead(BaseModel):
+    """BlogPostRead model for reading blog post data"""
+    id: int
+    title: str
+    content: str
+    created_at: datetime
+    updated_at: datetime
+    tags: List[TagRead] = []
+    comments: List[CommentRead] = []
+
+    class Config:
+        from_attributes = True
+
+
