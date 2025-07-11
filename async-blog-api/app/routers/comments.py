@@ -4,6 +4,7 @@ from app.schemas import CommentRead, CommentCreate
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 from typing import List
+from app.core.auth import get_current_admin_user
 
 
 from app.db import async_session
@@ -56,3 +57,25 @@ async def create_comment(
     await session.commit()
     await session.refresh(db_comment)
     return db_comment
+
+
+
+@router.delete("/comments/{id}")
+async def delete_comment(
+    id: int,
+    session: AsyncSession = Depends(get_session),
+    _: dict = Depends(get_current_admin_user)
+):
+    """
+    DELETE endpoint to delete a comment by ID (only accessible by admin users)
+    Args:
+        id (int): The ID of the comment to delete
+        session (AsyncSession): The database session
+        _: dict: Dependency to ensure the user is an admin
+    """
+    comment = await session.get(Comment, id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    await session.delete(comment)
+    await session.commit()
+    return {"detail": "Comment deleted"}
