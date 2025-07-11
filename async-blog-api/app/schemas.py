@@ -37,3 +37,17 @@ class BlogPostRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+
+class CommentCreate(BaseModel):
+    content: str
+
+
+class CommentRead(BaseModel):
+    id: int
+    content: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
