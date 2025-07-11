@@ -49,3 +49,17 @@ class Tag(SQLModel, table=True):
 
     # Relationship to blog posts through the PostTagLink association table
     posts: List[BlogPost] = Relationship(back_populates="tags", link_model=PostTagLink)
+
+
+
+class Comment(SQLModel, table=True):
+    """
+    Comment model representing a comment on a blog post
+    Attributes:
+        id (Optional[int]): Unique identifier for the comment.
+        post_id (int): Foreign key referencing the blog post.
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    post_id: int = Field(foreign_key="blogpost.id")
+    content: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
