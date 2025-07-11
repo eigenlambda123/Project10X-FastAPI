@@ -29,3 +29,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     # Decode the token to get user information
     payload = decode_token(token)
     return payload
+
+
+async def get_current_admin_user(user = Depends(get_current_user)):
+    """Get the current admin user from the JWT token"""
+    if not user.get("is_admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
+    return user
