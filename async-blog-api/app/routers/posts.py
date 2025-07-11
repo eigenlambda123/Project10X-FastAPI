@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
@@ -44,30 +46,46 @@ async def create_post(post: BlogPostCreate, session: AsyncSession = Depends(get_
 @router.get("/", response_model=List[BlogPostRead])
 async def read_posts( 
     tag: str | None = Query(default=None),
+    limit: int = Query(default=10, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
     session: AsyncSession = Depends(get_session)
 ):
     """
     GET endpoint to read all blog posts
+    Args:
+        tag (str | None): Optional tag to filter posts by
+        limit (int): Maximum number of posts to return
+        offset (int): Offset for pagination
+        session (AsyncSession): The database session
     """
-    # If a tag is specified, filter posts by that tag
-    # Using Query to allow optional tag filtering
-    # If tag is None, it retrieves all posts
-    # Using selectinload to eagerly load tags for performance
+
+    base_stmt = select(BlogPost).options(selectinload(BlogPost.tags))
+    
     if tag:
-        result = await session.exec(
-            select(BlogPost)
-            .join(BlogPost.tags)
-            .where(Tag.name == tag)
-            .options(selectinload(BlogPost.tags))
-        )
-    else:  
-        result = await session.exec(
-            select(BlogPost).options(selectinload(BlogPost.tags))
-        )
+        base_stmt = base_stmt.join(BlogPost.tags).where(Tag.name == tag)
+    
+    # Count total matching posts before slicing
+    count_result = await session.exec(base_stmt)
+    total = len(count_result.all())
+
+    # Apply pagination to query
+    paginated_stmt = base_stmt.offset(offset).limit(limit)
+    result = await session.exec(paginated_stmt)
     posts = result.all()
 
-    # Convert ORM models to Pydantic models for response (Pydantic v2+)
-    return [BlogPostRead.model_validate(post) for post in posts]
+    items = [BlogPostRead.model_validate(post).model_dump() for post in posts]
+
+    return JSONResponse(
+    content=jsonable_encoder({
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": items
+    })
+)
+
+
+
 
 
 
