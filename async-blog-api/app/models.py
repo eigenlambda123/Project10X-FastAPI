@@ -68,3 +68,20 @@ class Comment(SQLModel, table=True):
 
     # Relationship to the blog post
     post: Optional[BlogPost] = Relationship(back_populates="comments")
+
+
+
+
+class User(SQLModel, table=True):
+    """
+    User model representing a user in the database
+    Attributes:
+        id (Optional[int]): Unique identifier for the user.
+        email (str): Email address of the user.
+        hashed_password (str): Hashed password of the user.
+        is_admin (bool): Flag indicating if the user is an admin.
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True)
+    hashed_password: str
+    is_admin: bool = Field(default=False)
