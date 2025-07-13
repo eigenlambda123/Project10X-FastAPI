@@ -19,6 +19,6 @@ def get_metrics():
     return {
         "hits": cache_stats["hits"],
         "misses": cache_stats["misses"],
-        "top_keys": top_keys,
-        "total_cached_keys": None  # Optional, to be filled from Redis
+        "top_keys": top_keys, # Records the top 5 accessed keys
+        "total_cached_keys": None
     }
