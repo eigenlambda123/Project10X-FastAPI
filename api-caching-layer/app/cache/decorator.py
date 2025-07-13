@@ -29,6 +29,15 @@ def cache_response(ttl: int = 60):
 
             # Cache the response
             redis.set(cache_key, json.dumps(response), ex=ttl)
+
+            print(f"[Cache] Checking key: {cache_key}")
+
+            # Log cache hit or miss
+            if cached:
+                print(f"[Cache] HIT for key: {cache_key}")
+            else:
+                print(f"[Cache] MISS for key: {cache_key}")
+
             return response
         return wrapper
     return decorator
