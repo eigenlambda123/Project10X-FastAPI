@@ -1,43 +1,48 @@
 import json
 from functools import wraps
-from fastapi import Depends, Request
+from fastapi import Request
 from app.cache.redis_client import get_redis_client
+from app.cache.metrics import record_hit, record_miss
 
 def cache_response(ttl: int = 60):
     """
-    Decorator to cache the response of a FastAPI endpoint using Redis
-    ttl: Time to live for the cache in seconds
+    Custom decorator to cache API responses in Redis
+    - ttl: Time to live for the cache in seconds.
+    - If 'nocache' query parameter is set to true, it skips caching.
     """
-
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            # Extract request and redis client from args or kwargs
-            request: Request = kwargs.get("request") or next((arg for arg in args if isinstance(arg, Request)), None)
-            redis = kwargs.get("redis") or get_redis_client()
+            # Extract the request object from args or kwargs
+            request: Request = kwargs.get("request") or args[0]
+            # Get query parameters as a dict
+            query_params = dict(request.query_params)
+            # Check if 'nocache' query param is set to true to skip cache
+            skip_cache = query_params.get("nocache", "false").lower() == "true"
 
-            # Generate a cache key based on the request method and URL path
+            # Generate a cache key using HTTP method and URL path
             cache_key = f"{request.method}:{request.url.path}"
+            redis = get_redis_client()
 
-            # Check if the response is cached
-            cached = redis.get(cache_key)
-            if cached:
-                return json.loads(cached)
-            
-            # Call the original function to get the response
+            # If not skipping cache, try to fetch from Redis
+            if not skip_cache:
+                cached = redis.get(cache_key)
+                if cached:
+                    # Cache hit: record and return cached response
+                    record_hit(cache_key)
+                    return json.loads(cached)
+                else:
+                    # Cache miss: record miss
+                    record_miss(cache_key)
+
+            # Call the actual endpoint function
             response = await func(*args, **kwargs)
 
-            # Cache the response
-            redis.set(cache_key, json.dumps(response), ex=ttl)
+            # Store response in cache if it's a dict and not skipping cache
+            if not skip_cache and isinstance(response, dict):
+                redis.set(cache_key, json.dumps(response), ex=ttl)
 
-            print(f"[Cache] Checking key: {cache_key}")
-
-            # Log cache hit or miss
-            if cached:
-                print(f"[Cache] HIT for key: {cache_key}")
-            else:
-                print(f"[Cache] MISS for key: {cache_key}")
-
+            # Return the response (from cache or fresh)
             return response
         return wrapper
     return decorator
