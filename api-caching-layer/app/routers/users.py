@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from app.cache.redis_client import get_redis_client
+from app.cache.utils import invalidate_cache
 from app.cache.decorator import cache_response
 
 router = APIRouter()
