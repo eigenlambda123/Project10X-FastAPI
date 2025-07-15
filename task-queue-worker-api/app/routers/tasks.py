@@ -20,3 +20,16 @@ async def submit_task():
 
     long_task.delay(new_task.id, 21)
     return {"task_id": new_task.id}
+
+
+@router.get("/tasks/{task_id}/status")
+async def get_status(task_id: str):
+    """
+    GET endpoint to check the status of a task by its ID.
+    This endpoint retrieves the task from the database and returns its status.
+    """
+    async with async_session() as session:
+        task = await session.get(Task, task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        return {"task_id": task.id, "status": task.status}
