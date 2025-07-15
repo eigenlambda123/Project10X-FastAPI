@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from app.worker.tasks import fake_long_task
 
 app = FastAPI()
 
