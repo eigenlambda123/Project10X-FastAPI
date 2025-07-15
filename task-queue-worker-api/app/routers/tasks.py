@@ -3,17 +3,26 @@ from sqlmodel import select
 from app.db import async_session
 from app.models import Task
 from app.worker.tasks import long_task
+from pydantic import BaseModel, HttpUrl
+from typing import Optional
 
 router = APIRouter()
 
+class SubmitTaskRequest(BaseModel):
+    webhook_url: Optional[HttpUrl] = None
+
+
 @router.post("/tasks/submit")
-async def submit_task():
+async def submit_task(payload: SubmitTaskRequest):
     """
-    POST endpoint for submitting a new task to the queue and returning the task ID.
-    This endpoint creates a new Task instance, saves it to the database,
-    and enqueues it for processing in the Celery worker.
+    Post endpoint to submit a new task.
+    
+    This endpoint creates a new task record in the database and triggers a background long-running task.
+
+    Optionally, you can provide a `webhook_url` in the request body. If provided, the system will send a POST request
+    with the task result to the specified webhook URL once the task is completed.
     """
-    new_task = Task()
+    new_task = Task(webhook_url=payload.webhook_url)
     async with async_session() as session:
         session.add(new_task)
         await session.commit()
