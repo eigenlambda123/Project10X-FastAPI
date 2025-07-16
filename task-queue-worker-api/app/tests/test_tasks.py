@@ -13,3 +13,16 @@ async def test_submit_task():
         data = response.json()
         assert "task_id" in data
 
+
+async def test_task_status(client):
+    """
+    Test the task status endpoint
+    """
+    response = await client.post("/tasks/submit", json={})
+    task_id = response.json()["task_id"]
+
+    status = await client.get(f"/tasks/{task_id}/status")
+    assert status.status_code == 200
+    assert status.json()["status"] in ["PENDING", "STARTED", "SUCCESS"]
+
+
