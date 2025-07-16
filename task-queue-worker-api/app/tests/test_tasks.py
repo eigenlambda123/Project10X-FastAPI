@@ -19,7 +19,7 @@ async def test_task_status(client):
     """
     Test the task status endpoint
     """
-    response = await client.post("/tasks/submit", json={})
+    response = await client.post("api/tasks/submit", json={})
     task_id = response.json()["task_id"]
 
     status = await client.get(f"/tasks/{task_id}/status")
