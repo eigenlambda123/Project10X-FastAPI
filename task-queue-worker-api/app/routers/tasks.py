@@ -9,7 +9,7 @@ from typing import Optional
 router = APIRouter()
 
 class SubmitTaskRequest(BaseModel):
-    webhook_url: Optional[HttpUrl] = None
+    webhook_url: Optional[str] = None
 
 
 @router.post("/tasks/submit")
