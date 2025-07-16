@@ -22,7 +22,7 @@ async def test_task_status(client):
     response = await client.post("api/tasks/submit", json={})
     task_id = response.json()["task_id"]
 
-    status = await client.get(f"/tasks/{task_id}/status")
+    status = await client.get(f"api/tasks/{task_id}/status")
     assert status.status_code == 200
     assert status.json()["status"] in ["PENDING", "STARTED", "SUCCESS"]
 
