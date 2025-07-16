@@ -175,7 +175,3 @@ app/
 * Metrics are stored in-memory and reset on app restart
 * The cache decorator supports `nocache=true` to force bypass
 * Ideal for plugging into real apps with DB-backed models and user-specific cache keys
-
----
-
-Let me know if you'd like a badge-style summary, add real DB logic later, or cross-link this to other Project10X projects.
