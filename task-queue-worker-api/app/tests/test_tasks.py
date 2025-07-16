@@ -1,6 +1,17 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 from app.main import app
+import pytest_asyncio
+
+@pytest_asyncio.fixture
+async def client():
+    """
+    Fixture to create an HTTP client for testing FastAPI endpoints
+    """
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+
 
 @pytest.mark.asyncio
 async def test_submit_task():
@@ -9,20 +20,21 @@ async def test_submit_task():
     """
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.post("api/tasks/submit", json={})
+        response = await client.post("/api/tasks/submit", json={})
         assert response.status_code == 200
         data = response.json()
         assert "task_id" in data
 
 
+@pytest.mark.asyncio
 async def test_task_status(client):
     """
     Test the task status endpoint
     """
-    response = await client.post("api/tasks/submit", json={})
+    response = await client.post("/api/tasks/submit", json={})
     task_id = response.json()["task_id"]
 
-    status = await client.get(f"api/tasks/{task_id}/status")
+    status = await client.get(f"/api/tasks/{task_id}/status")
     assert status.status_code == 200
     assert status.json()["status"] in ["PENDING", "STARTED", "SUCCESS"]
 
