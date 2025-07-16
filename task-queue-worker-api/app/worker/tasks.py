@@ -13,7 +13,7 @@ import requests
     autoretry_for=(Exception,), # Automatically retry on exceptions
     retry_kwargs={"max_retries": 3, "countdown": 5},  # Retry up to 3 times with a 5-second delay
 )
-def long_task(task_id: str, x: int):
+def long_task(self, task_id: str, x: int):
     """
     Run a long task that simulates work by sleeping for 3 seconds
     and then updates the task status in the database.
