@@ -9,7 +9,7 @@ async def test_submit_task():
     """
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.post("/tasks/submit", json={})
+        response = await client.post("api/tasks/submit", json={})
         assert response.status_code == 200
         data = response.json()
         assert "task_id" in data
