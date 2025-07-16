@@ -1,4 +1,4 @@
-# Project10X: The FastAPI Builder Series
+# Project10X: FastAPI
 
 A structured, hands-on journey through 10 backend projects, designed to progressively build and deepen API development skills using **FastAPI**, asynchronous programming, and modern Python backend tooling.
 
@@ -11,7 +11,7 @@ This repository documents a curated sequence of FastAPI projects developed to ex
 Each project focuses on production-style backend architecture, and includes:
 
 * Core CRUD and RESTful logic
-* FastAPI testing with `TestClient` and `pytest`
+* FastAPI testing with `TestClient`, `pytest`, and `httpx.AsyncClient`
 * Clean use of Pydantic models and validation
 * Optional stretch goals for async integrations, caching, or external API use
 
@@ -29,8 +29,8 @@ Projects are structured to reflect real-world systems rather than isolated examp
 | 4  | Background Tasks Service              | Email simulation, async task execution                        | FastAPI + BackgroundTasks|
 | 5  | Weather Proxy Microservice            | Async fetch, external API call, response transformation       | FastAPI + httpx          |
 | 6  | Async Blog API                        | Async DB with SQLModel, pagination, tag-based filtering       | FastAPI + SQLModel       |
-| 7  | API Caching Layer                     | In-memory or Redis-based caching for performance              | FastAPI + Redis (optional)|
-| 8  | Task Queue Worker API                 | Background job queue with Celery + Redis                     | FastAPI + Celery         |
+| 7  | API Caching Layer                     | In-memory or Redis-based caching for performance              | FastAPI + Redis |
+| 8  | Task Queue Worker API                 | Background job queue with Celery + Redis                     | FastAPI + Celery + Redis |
 | 9  | Rate-Limited News API                 | Async scraping, throttling, client headers                    | FastAPI + httpx + limits |
 | 10 | Dockerized Production API             | Full Docker setup, env configs, async logging                 | FastAPI + Uvicorn + Docker|
 
@@ -57,7 +57,7 @@ Each project resides in its own folder with documentation for setup, features, a
 
 ## Purpose
 
-**Project10X: The FastAPI Builder Series** is designed as a deep learning track for mastering asynchronous API development in Python using FastAPI. It reflects a commitment to:
+**Project10X-FastAPI** is designed as a deep learning track for mastering asynchronous API development in Python using FastAPI. It reflects a commitment to:
 
 * Understanding async I/O and API design at a production level
 * Testing and documenting APIs with clarity and completeness
