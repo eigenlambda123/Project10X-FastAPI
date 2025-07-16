@@ -82,7 +82,6 @@ Optionally accepts a `webhook_url` that will be notified when the task completes
 | Result Retrieval   | View final output after task completion                              |
 | Webhook Support    | Send `POST` notification to a callback URL once task completes       |
 | Retry Logic        | Tasks automatically retry on failure with exponential backoff        |
-| DB Sync (optional) | Store task metadata in DB for audit or dashboarding (future stretch) |
 
 ---
 
