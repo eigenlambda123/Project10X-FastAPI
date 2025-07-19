@@ -1,5 +1,21 @@
+import httpx
 import asyncio
+from bs4 import BeautifulSoup
+from typing import List, Dict
 
-async def mock_scrape_news():
-    await asyncio.sleep(0.5)
-    return [{"title": "Test News", "source": "Mock Site"}]
+HEADERS = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+
+async def fetch_html(url: str) -> str | None:
+    """
+    Fetches HTML content from a given URL asynchronously
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0, headers=HEADERS) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            return response.text
+    except httpx.HTTPError:
+        return None
