@@ -3,13 +3,11 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from app.rate_limit import limiter
 from app.scraper import mock_scrape_news
+from app.scraper import get_all_news
 
 router = APIRouter(prefix="/news")
 
-@router.get("/")
-@limiter.limit("5/minute")
-async def get_news(request: Request):
-    return {
-        "status": "ok",
-        "data": await mock_scrape_news()
-    }
+
+@router.get("/news/")
+async def news_endpoint():
+    return await get_all_news()
