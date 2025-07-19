@@ -87,13 +87,53 @@ async def fetch_cnn_news() -> List[Dict]:
 
 
 
+async def fetch_hn_news() -> List[Dict]:
+    """
+    Fetches the latest news articles from Hacker News and scrapes the HTML content
+    """
+    html = await fetch_html("https://news.ycombinator.com/")
+    if not html:
+        print("Hacker News HTML fetch failed or returned empty!")
+        return []
+
+    soup = BeautifulSoup(html, "html.parser")
+    articles = []
+
+    # Select news articles from the Hacker News page
+    # This assumes articles are listed in <tr> elements with class "athing"
+    for row in soup.select("tr.athing"):
+        title_tag = row.select_one("span.titleline a") # This selects the title link
+        if not title_tag:
+            continue
+        
+        # Extract the title and URL from each article item
+        # The title is in the <a> tag with class "titlelink"
+        title = title_tag.get_text(strip=True)
+        url = title_tag.get("href")
+        if not url:
+            continue
+
+
+        articles.append({
+            "source": "hackernews",
+            "title": title,
+            "url": url,
+            "published_at": None  # HN does not give this directly
+        })
+
+    return articles[:10]
+
+
+
+
 async def get_all_news() -> List[Dict]:
     """
     Fetches news articles from multiple sources asynchronously
     """
     results = await asyncio.gather(
         fetch_bbc_news(),
-        fetch_cnn_news()
+        fetch_cnn_news(),
+        fetch_hn_news()
     )
     all_articles = []
     for site_articles in results:
