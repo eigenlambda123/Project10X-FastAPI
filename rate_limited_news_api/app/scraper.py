@@ -48,3 +48,17 @@ async def fetch_bbc_news() -> List[Dict]:
         })
 
     return articles[:10]
+
+
+
+async def get_all_news() -> List[Dict]:
+    """
+    Fetches news articles from multiple sources asynchronously
+    """
+    results = await asyncio.gather(
+        fetch_bbc_news()
+    )
+    all_articles = []
+    for site_articles in results:
+        all_articles.extend(site_articles)
+    return all_articles
