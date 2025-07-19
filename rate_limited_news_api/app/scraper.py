@@ -58,12 +58,42 @@ async def fetch_bbc_news() -> List[Dict]:
 
 
 
+async def fetch_cnn_news() -> List[Dict]:
+    """
+    Fetches the latest news articles from CNN and scrapes the HTML content
+    """
+    html = await fetch_html("https://edition.cnn.com/world")
+    if not html:
+        print("CNN HTML fetch failed or returned empty!")
+        return []
+
+    soup = BeautifulSoup(html, "html.parser")
+    articles = []
+
+    # Select news articles from the CNN World page
+    # uses a selector that matches CNN's article links
+    for item in soup.select("a[data-link-type='article']"):
+        title = item.get_text(strip=True)
+        url = item["href"]
+        full_url = f"https://edition.cnn.com{url}" if url.startswith("/") else url
+        articles.append({
+            "source": "cnn",
+            "title": title,
+            "url": full_url,
+            "published_at": None
+        })
+
+    return articles[:10]
+
+
+
 async def get_all_news() -> List[Dict]:
     """
     Fetches news articles from multiple sources asynchronously
     """
     results = await asyncio.gather(
-        fetch_bbc_news()
+        fetch_bbc_news(),
+        fetch_cnn_news()
     )
     all_articles = []
     for site_articles in results:
