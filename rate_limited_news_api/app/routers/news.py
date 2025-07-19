@@ -7,6 +7,6 @@ from app.scraper import get_all_news
 router = APIRouter(prefix="/news")
 
 
-@router.get("/news/")
+@router.get("/")
 async def news_endpoint():
     return await get_all_news()
