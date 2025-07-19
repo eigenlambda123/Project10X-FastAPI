@@ -22,3 +22,29 @@ async def fetch_html(url: str) -> str | None:
         return None
     
 
+
+async def fetch_bbc_news() -> List[Dict]:
+    """
+    Fetches the latest news articles from BBC News and scrapes the HTML content
+    """
+    html = await fetch_html("https://www.bbc.com/news")
+    if not html:
+        return []
+
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(html, "html.parser")
+    articles = []
+
+    # Select news articles from the BBC News page
+    for item in soup.select("a.gs-c-promo-heading"):
+        title = item.get_text(strip=True)
+        url = item["href"]
+        full_url = f"https://www.bbc.com{url}" if url.startswith("/") else url
+        articles.append({
+            "source": "bbc",
+            "title": title,
+            "url": full_url,
+            "published_at": None
+        })
+
+    return articles[:10]
