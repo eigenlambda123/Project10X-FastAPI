@@ -29,6 +29,7 @@ async def fetch_bbc_news() -> List[Dict]:
     """
     html = await fetch_html("https://www.bbc.com/news")
     if not html:
+        print("BBC HTML fetch failed or returned empty!")
         return []
 
     # Parse the HTML content using BeautifulSoup
@@ -36,7 +37,9 @@ async def fetch_bbc_news() -> List[Dict]:
     articles = []
 
     # Select news articles from the BBC News page
-    for item in soup.select("a.gs-c-promo-heading"):
+    # Adjust the selector based on the actual structure of the page
+    # This example assumes articles are linked with a specific data-testid attribute
+    for item in soup.select("a[data-testid='internal-link']"):
         title = item.get_text(strip=True)
         url = item["href"]
         full_url = f"https://www.bbc.com{url}" if url.startswith("/") else url
