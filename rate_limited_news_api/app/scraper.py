@@ -6,6 +6,8 @@ from app.redis_cache import get_cache, set_cache
 from app.logger import logger
 import time
 import random
+from app.redis_cache import set_scrape_status
+
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114.0.0.0 Safari/537.36",
@@ -79,11 +81,13 @@ async def fetch_bbc_news() -> List[Dict]:
         # cache, log, and return
         articles = articles[:10]
         await set_cache(cache_key, articles)
+        await set_scrape_status("bbc", "ok")
         logger.info(f"Scraped BBC ({len(articles)} articles) in {time.time() - start:.2f}s")
         return articles
 
     except Exception as e:
         logger.error(f"Error scraping BBC: {e}")
+        await set_scrape_status("bbc", "error")
         return []
 
 
@@ -126,11 +130,13 @@ async def fetch_cnn_news() -> List[Dict]:
         # cache, log, and return
         articles = articles[:10]
         await set_cache(cache_key, articles)
+        await set_scrape_status("cnn", "ok")
         logger.info(f"Scraped CNN ({len(articles)} articles) in {time.time() - start:.2f}s")
         return articles
 
     except Exception as e:
         logger.error(f"Error scraping CNN: {e}")
+        await set_scrape_status("cnn", "error")
         return []
 
 
@@ -183,11 +189,13 @@ async def fetch_hn_news() -> List[Dict]:
         # cache and return
         articles = articles[:10]
         await set_cache(cache_key, articles)
+        await set_scrape_status("hn", "ok")
         logger.info(f"Scraped Hacker News ({len(articles)} articles) in {time.time() - start:.2f}s")
         return articles
     
     except Exception as e:
         logger.error(f"Error scraping HN: {e}")
+        await set_scrape_status("hn", "error")
         return []
 
 
