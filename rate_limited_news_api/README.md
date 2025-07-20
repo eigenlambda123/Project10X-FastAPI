@@ -63,8 +63,8 @@ Includes optional proxy rotation to reduce blocking.
 {
   "redis": "connected",
   "scrapers": {
-    "hn": "success",
-    "cnn": "idle",
+    "hn": "ok",
+    "cnn": "null",
     "bbc": "error"
   },
   "rate_limit": {
@@ -83,7 +83,7 @@ Includes optional proxy rotation to reduce blocking.
 | **Async Scraping**  | Each source uses an `httpx.AsyncClient` with timeout + retries       |
 | **Proxy Rotation**  | Rotates headers and proxies per request for resilience               |
 | **Redis Caching**   | Cache entire JSON responses using hashed request key                 |
-| **Status Tracking** | Scrape status is tracked in Redis (e.g., `idle`, `success`, `error`) |
+| **Status Tracking** | Scrape status is tracked in Redis (e.g., `null`, `ok`, `error`) |
 | **Logging**         | Scrape attempts are logged: source, success/fail, and response time  |
 | **Rate Limiting**   | Requests are throttled via IP or user limits using SlowAPI           |
 
