@@ -20,3 +20,10 @@ async def get_cache(key: str):
 
 async def set_cache(key: str, value, ttl: int = CACHE_TTL_SECONDS):
     await redis_client.set(key, json.dumps(value), ex=ttl)
+
+
+async def set_scrape_status(source: str, status: str):
+    await redis_client.set(f"status:{source}", status, ex=300)
+
+async def get_scrape_status(source: str):
+    return await redis_client.get(f"status:{source}")
