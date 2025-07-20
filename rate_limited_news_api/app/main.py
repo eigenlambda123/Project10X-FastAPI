@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from .rate_limit import limiter, rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from .routers import news
+from .routers import news, status
 
 def create_app():
     app = FastAPI()
@@ -12,6 +12,7 @@ def create_app():
 
     # Register routes 
     app.include_router(news.router)
+    app.include_router(status.router)
 
     return app
 
