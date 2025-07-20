@@ -11,7 +11,7 @@ def create_app():
     app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
     # Register routes 
-    app.include_router(news.router, prefix="/news")
+    app.include_router(news.router)
 
     return app
 
