@@ -26,7 +26,7 @@ async def fetch_html(url: str) -> str | None:
             "User-Agent": random.choice(USER_AGENTS)
         }
         # Use the configured timeout and headers
-        async with httpx.AsyncClient(timeout=10.0, headers=HEADERS) as client:
+        async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
             response = await client.get(url)
             response.raise_for_status()
             return response.text
