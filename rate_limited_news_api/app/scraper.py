@@ -2,6 +2,7 @@ import httpx
 import asyncio
 from bs4 import BeautifulSoup
 from typing import List, Dict
+from app.redis_cache import get_cache, set_cache
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
@@ -27,6 +28,13 @@ async def fetch_bbc_news() -> List[Dict]:
     """
     Fetches the latest news articles from BBC News and scrapes the HTML content
     """
+    # caching
+    cache_key = "news:bbc"
+    cached = await get_cache(cache_key)
+    if cached:
+        return cached
+    
+
     html = await fetch_html("https://www.bbc.com/news")
     if not html:
         print("BBC HTML fetch failed or returned empty!")
@@ -53,8 +61,11 @@ async def fetch_bbc_news() -> List[Dict]:
             "url": full_url,
             "published_at": None
         })
-    # Return the first 10 articles
-    return articles[:10]
+    
+    # cache and return
+    articles = articles[:10]
+    await set_cache(cache_key, articles)
+    return articles
 
 
 
