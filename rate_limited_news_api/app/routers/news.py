@@ -13,7 +13,7 @@ async def news_endpoint(request: Request):
     return await get_all_news()
 
 
-@router.get("/")
+@router.get("/with_pagination")
 @limiter.limit("3/minute")
 async def all_news(
     request: Request,
