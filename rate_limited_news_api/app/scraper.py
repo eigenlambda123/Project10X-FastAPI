@@ -139,3 +139,21 @@ async def get_all_news() -> List[Dict]:
     for site_articles in results:
         all_articles.extend(site_articles)
     return all_articles
+
+
+
+# source-specific fetch functions
+SCRAPER_MAP = {
+    "bbc": fetch_bbc_news,
+    "cnn": fetch_cnn_news,
+    "hackernews": fetch_hn_news,
+}
+
+async def get_news_by_source(source: str) -> List[Dict]:
+    """
+    Fetches news articles from a specific source based on the provided source name.
+    """
+    fetcher = SCRAPER_MAP.get(source.lower())
+    if not fetcher:
+        return []
+    return await fetcher()
