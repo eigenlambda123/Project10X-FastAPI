@@ -131,7 +131,7 @@ async def fetch_hn_news() -> List[Dict]:
     Fetches the latest news articles from Hacker News and scrapes the HTML content
     """
     # caching
-    cache_key = "news:cnn"
+    cache_key = "news:hn"
     cached = await get_cache(cache_key)
     if cached:
         logger.info(f"Cache hit for {cache_key}")
