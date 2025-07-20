@@ -97,7 +97,6 @@ async def fetch_cnn_news() -> List[Dict]:
         if not html:
             logger.warning("Empty or failed HTML fetch for CNN")
             return []
-            return []
 
         soup = BeautifulSoup(html, "html.parser")
         articles = []
@@ -135,43 +134,52 @@ async def fetch_hn_news() -> List[Dict]:
     cache_key = "news:cnn"
     cached = await get_cache(cache_key)
     if cached:
+        logger.info(f"Cache hit for {cache_key}")
         return cached
     
+    logger.info(f"Cache miss for {cache_key}. Scraping Hacker News...")
+    start = time.time()
+    
+    try:
+        html = await fetch_html("https://news.ycombinator.com/")
+        if not html:
+            logger.warning("Empty or failed HTML fetch for Hacker News")
+            return []
 
-    html = await fetch_html("https://news.ycombinator.com/")
-    if not html:
-        print("Hacker News HTML fetch failed or returned empty!")
+        soup = BeautifulSoup(html, "html.parser")
+        articles = []
+
+        # Select news articles from the Hacker News page
+        # This assumes articles are listed in <tr> elements with class "athing"
+        for row in soup.select("tr.athing"):
+            title_tag = row.select_one("span.titleline a") # This selects the title link
+            if not title_tag:
+                continue
+            
+            # Extract the title and URL from each article item
+            # The title is in the <a> tag with class "titlelink"
+            title = title_tag.get_text(strip=True)
+            url = title_tag.get("href")
+            if not url:
+                continue
+
+
+            articles.append({
+                "source": "hackernews",
+                "title": title,
+                "url": url,
+                "published_at": None  # HN does not give this directly
+            })
+
+        # cache and return
+        articles = articles[:10]
+        await set_cache(cache_key, articles)
+        logger.info(f"Scraped Hacker News ({len(articles)} articles) in {time.time() - start:.2f}s")
+        return articles
+    
+    except Exception as e:
+        logger.error(f"Error scraping HN: {e}")
         return []
-
-    soup = BeautifulSoup(html, "html.parser")
-    articles = []
-
-    # Select news articles from the Hacker News page
-    # This assumes articles are listed in <tr> elements with class "athing"
-    for row in soup.select("tr.athing"):
-        title_tag = row.select_one("span.titleline a") # This selects the title link
-        if not title_tag:
-            continue
-        
-        # Extract the title and URL from each article item
-        # The title is in the <a> tag with class "titlelink"
-        title = title_tag.get_text(strip=True)
-        url = title_tag.get("href")
-        if not url:
-            continue
-
-
-        articles.append({
-            "source": "hackernews",
-            "title": title,
-            "url": url,
-            "published_at": None  # HN does not give this directly
-        })
-
-    # cache and return
-    articles = articles[:10]
-    await set_cache(cache_key, articles)
-    return articles
 
 
 
