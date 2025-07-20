@@ -66,8 +66,8 @@ async def fetch_bbc_news() -> List[Dict]:
                 "url": full_url,
                 "published_at": None
             })
-        
-        # cache and return
+
+        # cache, log, and return
         articles = articles[:10]
         await set_cache(cache_key, articles)
         logger.info(f"Scraped BBC ({len(articles)} articles) in {time.time() - start:.2f}s")
@@ -87,34 +87,43 @@ async def fetch_cnn_news() -> List[Dict]:
     cache_key = "news:cnn"
     cached = await get_cache(cache_key)
     if cached:
+        logger.info(f"Cache hit for {cache_key}")
         return cached
+    logger.info(f"Cache miss for {cache_key}. Scraping CNN News...")
+    start = time.time()
     
-    
-    html = await fetch_html("https://edition.cnn.com/world")
-    if not html:
-        print("CNN HTML fetch failed or returned empty!")
+    try:
+        html = await fetch_html("https://edition.cnn.com/world")
+        if not html:
+            logger.warning("Empty or failed HTML fetch for CNN")
+            return []
+            return []
+
+        soup = BeautifulSoup(html, "html.parser")
+        articles = []
+
+        # Select news articles from the CNN World page
+        # uses a selector that matches CNN's article links
+        for item in soup.select("a[data-link-type='article']"):
+            title = item.get_text(strip=True)
+            url = item["href"]
+            full_url = f"https://edition.cnn.com{url}" if url.startswith("/") else url
+            articles.append({
+                "source": "cnn",
+                "title": title,
+                "url": full_url,
+                "published_at": None
+            })
+
+        # cache, log, and return
+        articles = articles[:10]
+        await set_cache(cache_key, articles)
+        logger.info(f"Scraped CNN ({len(articles)} articles) in {time.time() - start:.2f}s")
+        return articles
+
+    except Exception as e:
+        logger.error(f"Error scraping CNN: {e}")
         return []
-
-    soup = BeautifulSoup(html, "html.parser")
-    articles = []
-
-    # Select news articles from the CNN World page
-    # uses a selector that matches CNN's article links
-    for item in soup.select("a[data-link-type='article']"):
-        title = item.get_text(strip=True)
-        url = item["href"]
-        full_url = f"https://edition.cnn.com{url}" if url.startswith("/") else url
-        articles.append({
-            "source": "cnn",
-            "title": title,
-            "url": full_url,
-            "published_at": None
-        })
-
-    # cache and return
-    articles = articles[:10]
-    await set_cache(cache_key, articles)
-    return articles
 
 
 
