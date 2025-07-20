@@ -1,6 +1,4 @@
 from fastapi import APIRouter, Request, Query, HTTPException, status
-from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 from app.rate_limit import limiter
 from app.scraper import get_all_news, get_news_by_source, paginate
 

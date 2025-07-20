@@ -1,7 +1,6 @@
 # app/routes/status.py
 from fastapi import APIRouter
 from app.redis_cache import get_scrape_status
-from app.rate_limit import limiter
 
 router = APIRouter()
 

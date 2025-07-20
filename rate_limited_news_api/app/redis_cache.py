@@ -1,6 +1,5 @@
 import redis.asyncio as redis
 import json
-import os
 
 # Connect to local Redis
 redis_client = redis.Redis(
