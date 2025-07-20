@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from slowapi.middleware import SlowAPIMiddleware
 from .rate_limit import limiter, rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from .routers import news
