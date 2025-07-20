@@ -9,5 +9,5 @@ router = APIRouter(prefix="/news")
 
 @router.get("/")
 @limiter.limit("10/minute") # Limit to 10 requests per minute
-async def news_endpoint():
+async def news_endpoint(request: Request):
     return await get_all_news()
