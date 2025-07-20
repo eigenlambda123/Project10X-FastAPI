@@ -5,6 +5,7 @@ from typing import List, Dict
 from app.redis_cache import get_cache, set_cache
 from app.logger import logger
 import time
+import random
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114.0.0.0 Safari/537.36",
@@ -17,9 +18,13 @@ USER_AGENTS = [
 
 async def fetch_html(url: str) -> str | None:
     """
-    Fetches HTML content from a given URL asynchronously
+    Fetches HTML content from a given URL with a random User-Agent
+    and a timeout to prevent hanging requests.
     """
     try:
+        headers = {
+            "User-Agent": random.choice(USER_AGENTS)
+        }
         # Use the configured timeout and headers
         async with httpx.AsyncClient(timeout=10.0, headers=HEADERS) as client:
             response = await client.get(url)
