@@ -14,3 +14,6 @@ def create_app():
     app.include_router(news.router, prefix="/news")
 
     return app
+
+
+app = create_app()
