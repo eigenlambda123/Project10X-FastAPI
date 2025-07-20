@@ -157,3 +157,12 @@ async def get_news_by_source(source: str) -> List[Dict]:
     if not fetcher:
         return []
     return await fetcher()
+
+
+def paginate(data: List[Dict], limit: int = 10, page: int = 1) -> List[Dict]:
+    """
+    Paginates the given data
+    """
+    start = (page - 1) * limit
+    end = start + limit
+    return data[start:end]
