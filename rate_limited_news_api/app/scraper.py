@@ -73,6 +73,13 @@ async def fetch_cnn_news() -> List[Dict]:
     """
     Fetches the latest news articles from CNN and scrapes the HTML content
     """
+    # caching
+    cache_key = "news:cnn"
+    cached = await get_cache(cache_key)
+    if cached:
+        return cached
+    
+    
     html = await fetch_html("https://edition.cnn.com/world")
     if not html:
         print("CNN HTML fetch failed or returned empty!")
@@ -94,7 +101,10 @@ async def fetch_cnn_news() -> List[Dict]:
             "published_at": None
         })
 
-    return articles[:10]
+    # cache and return
+    articles = articles[:10]
+    await set_cache(cache_key, articles)
+    return articles
 
 
 
