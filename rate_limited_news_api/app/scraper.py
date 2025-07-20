@@ -112,6 +112,13 @@ async def fetch_hn_news() -> List[Dict]:
     """
     Fetches the latest news articles from Hacker News and scrapes the HTML content
     """
+    # caching
+    cache_key = "news:cnn"
+    cached = await get_cache(cache_key)
+    if cached:
+        return cached
+    
+
     html = await fetch_html("https://news.ycombinator.com/")
     if not html:
         print("Hacker News HTML fetch failed or returned empty!")
@@ -142,7 +149,10 @@ async def fetch_hn_news() -> List[Dict]:
             "published_at": None  # HN does not give this directly
         })
 
-    return articles[:10]
+    # cache and return
+    articles = articles[:10]
+    await set_cache(cache_key, articles)
+    return articles
 
 
 
