@@ -3,6 +3,8 @@ import asyncio
 from bs4 import BeautifulSoup
 from typing import List, Dict
 from app.redis_cache import get_cache, set_cache
+from app.logger import logger
+import time
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
@@ -32,40 +34,48 @@ async def fetch_bbc_news() -> List[Dict]:
     cache_key = "news:bbc"
     cached = await get_cache(cache_key)
     if cached:
+        logger.info(f"Cache hit for {cache_key}")
         return cached
-    
+    logger.info(f"Cache miss for {cache_key}. Scraping BBC News...")
+    start = time.time()
 
-    html = await fetch_html("https://www.bbc.com/news")
-    if not html:
-        print("BBC HTML fetch failed or returned empty!")
+    try:
+        html = await fetch_html("https://www.bbc.com/news")
+        if not html:
+            logger.warning("Empty or failed HTML fetch for BBC")
+            return []
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+        articles = []
+
+        # Select news articles from the BBC News page
+        # Adjust the selector based on the actual structure of the page
+        # This example assumes articles are linked with a specific data-testid attribute
+        for item in soup.select("a[data-testid='internal-link']"):
+
+            # Extract the title and URL from each article item
+            title = item.get_text(strip=True)
+            url = item["href"]
+            full_url = f"https://www.bbc.com{url}" if url.startswith("/") else url
+
+            # Append the article details to the list
+            articles.append({
+                "source": "bbc",
+                "title": title,
+                "url": full_url,
+                "published_at": None
+            })
+        
+        # cache and return
+        articles = articles[:10]
+        await set_cache(cache_key, articles)
+        logger.info(f"Scraped BBC ({len(articles)} articles) in {time.time() - start:.2f}s")
+        return articles
+
+    except Exception as e:
+        logger.error(f"Error scraping BBC: {e}")
         return []
-
-    # Parse the HTML content using BeautifulSoup
-    soup = BeautifulSoup(html, "html.parser")
-    articles = []
-
-    # Select news articles from the BBC News page
-    # Adjust the selector based on the actual structure of the page
-    # This example assumes articles are linked with a specific data-testid attribute
-    for item in soup.select("a[data-testid='internal-link']"):
-
-        # Extract the title and URL from each article item
-        title = item.get_text(strip=True)
-        url = item["href"]
-        full_url = f"https://www.bbc.com{url}" if url.startswith("/") else url
-
-        # Append the article details to the list
-        articles.append({
-            "source": "bbc",
-            "title": title,
-            "url": full_url,
-            "published_at": None
-        })
-    
-    # cache and return
-    articles = articles[:10]
-    await set_cache(cache_key, articles)
-    return articles
 
 
 
