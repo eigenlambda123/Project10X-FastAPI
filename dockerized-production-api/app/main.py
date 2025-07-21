@@ -10,3 +10,7 @@ async def on_startup():
     Initialize the database on application startup
     """
     await init_db()
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
