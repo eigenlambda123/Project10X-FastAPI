@@ -1,5 +1,7 @@
 import redis.asyncio as redis
-from app.core.config import settings
+from app.core.config import Settings
 
-# Initialize Redis client using the URL from settings
+settings = Settings()
+
+# Create a Redis client using the settings
 redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
