@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from app.db import get_session
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
+from fastapi import HTTPException
 
 from app.models.item import Item
 from app.schemas.items import ItemCreate, ItemRead
@@ -34,3 +35,14 @@ async def list_items(
     result = await session.exec(select(Item).offset(offset).limit(limit))
     items = result.all()
     return items
+
+
+@router.get("/{item_id}", response_model=ItemRead)
+async def get_item(item_id: int, session: AsyncSession = Depends(get_session)):
+    """
+    GET endpoint to retrieve a single item by ID
+    """
+    item = await session.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
