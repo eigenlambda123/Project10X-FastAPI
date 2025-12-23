@@ -51,7 +51,6 @@ Each project resides in its own folder with documentation for setup, features, a
 * Docker & Uvicorn for production setup
 * Testing with `pytest`, `TestClient`, and `httpx.AsyncClient`
 * RESTful API Design and OpenAPI documentation
-* Git and Modular Project Architecture
 
 ---
 
